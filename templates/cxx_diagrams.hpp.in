@@ -520,11 +520,18 @@ private:
 
 namespace impl {
 @CXXDiagrams_UnitCharge@
+
+@CXXDiagrams_StrongCoupling@
 }
 
 static double unit_charge(const EvaluationContext& context)
 {
    return impl::unit_charge(context).left().real() / Electron::electric_charge;
+}
+
+static double strong_coupling(const EvaluationContext& context)
+{
+   return impl::strong_coupling(context).left().real();
 }
 
 } // namespace cxx_diagrams

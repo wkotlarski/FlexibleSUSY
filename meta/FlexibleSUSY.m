@@ -1880,7 +1880,7 @@ WriteObservables[extraSLHAOutputBlocks_, files_List] :=
            
 (* Write the CXXDiagrams c++ files *)
 WriteCXXDiagramClass[vertices_List,massMatrices_,files_List] :=
-  Module[{fields, nPointFunctions, vertexRules, vertexData, cxxVertices, massFunctions, unitCharge},
+  Module[{fields, nPointFunctions, vertexRules, vertexData, cxxVertices, massFunctions, unitCharge, strongCoupling},
     vertexRules = CXXDiagrams`VertexRulesForVertices[vertices,massMatrices];
 
     fields = CXXDiagrams`CreateFields[];
@@ -1890,6 +1890,7 @@ WriteCXXDiagramClass[vertices_List,massMatrices_,files_List] :=
     cxxVertices = CXXDiagrams`CreateVertices[vertices,vertexRules];
     massFunctions = CXXDiagrams`CreateMassFunctions[];
     unitCharge = CXXDiagrams`CreateUnitCharge[massMatrices];
+    strongCoupling = CXXDiagrams`CreateStrongCoupling[massMatrices];
     
     WriteOut`ReplaceInFiles[files,
                             {"@CXXDiagrams_Fields@"          -> fields,
@@ -1897,6 +1898,7 @@ WriteCXXDiagramClass[vertices_List,massMatrices_,files_List] :=
                              "@CXXDiagrams_Vertices@"        -> cxxVertices,
                              "@CXXDiagrams_MassFunctions@"   -> massFunctions,
                              "@CXXDiagrams_UnitCharge@"      -> TextFormatting`IndentText[unitCharge],
+                             "@CXXDiagrams_StrongCoupling@"  -> TextFormatting`IndentText[strongCoupling],
                              Sequence @@ GeneralReplacementRules[]
                             }];
  ]

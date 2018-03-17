@@ -175,6 +175,7 @@ MuEGammaCreateInterfaceFunctionForLeptonPair[{inFermion_, outFermion_, spectator
                             " "] <>
                   "model );\n" <>
                   "std::valarray<std::complex<double>> c7NP {0.0, 0.0};\n" <>
+                  "const double massW = context.mass<VWm>({}); \n" <>
                   "c7NP[0] = -1/(2*unit_charge(context)) * std::complex<double>(form_factors[3]);\n" <>
                   "c7NP[1] = -1/(2*unit_charge(context)) * std::complex<double>(form_factors[2]);\n" <>
                   "return std::real(c7NP[0]);\n"
@@ -215,8 +216,8 @@ MuEGammaCreateInterfaceFunctionForLeptonPair[{inFermion_, outFermion_, spectator
                             " "] <>
                   "model );\n" <>
                   "std::valarray<std::complex<double>> c8NP {0.0, 0.0};\n" <>
-                  (* TODO: Get correct g3 *)
-                  "const double g3 = 1.04407069; \n" <>
+                  "const double massW = context.mass<VWm>({}); \n" <>
+                  "const double g3 = strong_coupling(context); \n" <>
                   "c8NP[0] = -1/(2*g3) * std::complex<double>(form_factors[3]);\n" <>
                   "c8NP[1] = -1/(2*g3) * std::complex<double>(form_factors[2]);\n" <>
                   "return std::real(c8NP[0]);\n"

@@ -39,6 +39,7 @@ CreateVertices::usage="";
 VertexRulesForVertices::usage="";
 CreateMassFunctions::usage="";
 CreateUnitCharge::usage="";
+CreateStrongCoupling::usage="";
 NumberOfFieldIndices::usage="";
 
 Begin["`Private`"];
@@ -277,6 +278,53 @@ CreateUnitCharge[massMatrices_] :=
          TextFormatting`IndentText @ 
            ("std::array<int, " <> ToString @ NumberOfIndices[parsedVertex] <> "> indices = " <>
               "concatenate(concatenate(photon_indices, electron_indices), electron_indices);\n\n") <>
+           
+         TextFormatting`IndentText @ VertexFunctionBody[parsedVertex] <> "\n" <>
+         "}"
+  ]
+
+CreateStrongCoupling[massMatrices_] :=
+  Module[{downquark,gluon,vertex,
+          vertexRules,parsedVertex,
+          numberOfdownquarkIndices,numberOfgluonIndices},
+         downquark = AtomHead @ TreeMasses`GetSMDownQuark[];
+         gluon = SARAH`Gluon;
+         vertex = {gluon, downquark, SARAH`bar[downquark]};
+         vertexRules = VertexRulesForVertices[{vertex}, massMatrices, sortCouplings -> False];
+         parsedVertex = ParseVertex[vertex, vertexRules, sortCouplings -> False];
+         numberOfdownquarkIndices = NumberOfFieldIndices[downquark];
+         numberOfgluonIndices = NumberOfFieldIndices[gluon];
+
+         "static LeftAndRightComponentedVertex strong_coupling(const EvaluationContext& context)\n" <>
+         "{\n" <>
+         TextFormatting`IndentText["using vertex_type = LeftAndRightComponentedVertex;"] <> "\n\n" <>
+         TextFormatting`IndentText @ 
+           ("std::array<int, " <> ToString @ numberOfdownquarkIndices <> "> downquark_indices = {" <>
+              If[TreeMasses`GetDimension[downquark] =!= 1,
+                 " " <> ToString @ (FieldInfo[downquark][[2]]-1) <> (* downquark has the lowest index *)
+                 If[numberOfdownquarkIndices =!= 1,
+                    StringJoin @ Table[", 0", {numberOfdownquarkIndices-1}],
+                    ""] <> " ",
+                 If[numberOfdownquarkIndices =!= 0,
+                    StringJoin @ Riffle[Table[" 0", {numberOfdownquarkIndices}], ","] <> " ",
+                    ""]
+                ] <>
+            "};\n") <>
+         TextFormatting`IndentText @ 
+           ("std::array<int, " <> ToString @ numberOfgluonIndices <> "> gluon_indices = {" <>
+               If[TreeMasses`GetDimension[gluon] =!= 1,
+                 " " <> ToString @ (FieldInfo[gluon][[2]]-1) <>
+                 If[numberOfgluonIndices =!= 1,
+                    StringJoin @ Table[", 0", {numberOfgluonIndices-1}],
+                    ""] <> " ",
+                 If[numberOfgluonIndices =!= 0,
+                    StringJoin @ Riffle[Table[" 0", {numberOfgluonIndices}], ","] <> " ",
+                    ""]
+                ] <>
+            "};\n") <>
+         TextFormatting`IndentText @ 
+           ("std::array<int, " <> ToString @ NumberOfIndices[parsedVertex] <> "> indices = " <>
+              "concatenate(concatenate(gluon_indices, downquark_indices), downquark_indices);\n\n") <>
            
          TextFormatting`IndentText @ VertexFunctionBody[parsedVertex] <> "\n" <>
          "}"
