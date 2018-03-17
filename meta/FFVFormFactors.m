@@ -175,7 +175,7 @@ CXXEvaluatorsForLeptonPairAndDiagramFromGraph[inFermion_, outFermion_, spectator
  {
   {{inFermion, ex1}, {exchangeParticle, 
     in2}, {AntiField[Emitter], in1}},
-  {{spectator, ex3}, {Emitter, in3}, {AntiField[Emitter], in1}},
+  {{spectator, ex3}, {AntiField[Emitter], in3}, {Emitter, in1}},
   {{AntiField[outFermion], ex2}, {AntiField[exchangeParticle], 
     in2}, {Emitter, in3}}
   }
