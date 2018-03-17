@@ -278,12 +278,12 @@ FermionIn, FermionOut, Spectator, Emitter, ExchangeField
          const auto indexEmit = flexiblesusy::cxx_diagrams::impl::concatenate( flexiblesusy::cxx_diagrams::impl::concatenate( spectator_indices, EmitterIndicesIn ), EmitterIndicesIn );
          const auto vertexEmit = FermionVertexEmit::evaluate(indexEmit, context);
 
-         const auto EmitterMass = context.mass<Emitter>(EmitterIndicesIn);
+         const auto emitterMass = context.mass<Emitter>(EmitterIndicesIn);
          const auto exchangeFieldMass = context.mass<ExchangeField>(exchangeFieldIndicesIn);
-         const auto x = pow(exchangeFieldMass/EmitterMass, 2);
-         const auto leptonMass = context.mass<FermionIn>(edmFieldIndicesIn);
+         const auto x = pow(exchangeFieldMass/emitterMass, 2);
+         const auto fermionMass = context.mass<FermionIn>(edmFieldIndicesIn);
 
-         std::complex<double> EmitterCharge (vertexEmit.value());
+         std::complex<double> emitterCharge (vertexEmit.value());
 
          // eq. 15 of hep-ph/9510309
          const std::complex<double> A1L =
@@ -291,18 +291,18 @@ FermionIn, FermionOut, Spectator, Emitter, ExchangeField
          // eq. 16 of hep-ph/9510309
          const std::complex<double> A2L = 
             vertexOut.left() * vertexIn.right() * OneLoopFunctionB(x) 
-            + vertexOut.left()* vertexIn.left() * exchangeFieldMass/leptonMass * OneLoopFunctionC(x);
+            + vertexOut.left()* vertexIn.left() * exchangeFieldMass/fermionMass * OneLoopFunctionC(x);
 
          // eq. 15 & 16 of hep-ph/9510309 after replacement L <-> R
          const std::complex<double> A1R = 
             1./18. * vertexOut.left() * vertexIn.right() * OneLoopFunctionA(x);
          const std::complex<double> A2R = 
             vertexOut.right() * vertexIn.left() * OneLoopFunctionB(x) 
-            + vertexOut.right()* vertexIn.right() * exchangeFieldMass/leptonMass * OneLoopFunctionC(x);
+            + vertexOut.right()* vertexIn.right() * exchangeFieldMass/fermionMass * OneLoopFunctionC(x);
 
-         const std::complex<double> massFactor = pow(EmitterMass,-2);
+         const std::complex<double> massFactor = pow(emitterMass,-2);
 
-         res += oneOver32PiSquared * EmitterCharge * massFactor 
+         res += oneOver32PiSquared * emitterCharge * massFactor 
             * std::valarray<std::complex<double>> {A1L, A1R, A2L, A2R};
       }
    }
@@ -374,13 +374,13 @@ FermionIn, FermionOut, Spectator, Emitter, ExchangeField
          const auto indexEmit = flexiblesusy::cxx_diagrams::impl::concatenate( flexiblesusy::cxx_diagrams::impl::concatenate( spectator_indices, EmitterIndicesIn ), EmitterIndicesIn );
          const auto vertexEmit = FermionVertexEmit::evaluate(indexEmit, context);
 
-         const auto EmitterMass = context.mass<Emitter>(EmitterIndicesIn);
+         const auto emitterMass = context.mass<Emitter>(EmitterIndicesIn);
          const auto exchangeFieldMass = context.mass<ExchangeField>(exchangeFieldIndicesIn);
-         const auto x = pow(EmitterMass/exchangeFieldMass, 2);
-         const auto leptonMass = context.mass<FermionIn>(edmFieldIndicesIn);
+         const auto x = pow(emitterMass/exchangeFieldMass, 2);
+         const auto fermionMass = context.mass<FermionIn>(edmFieldIndicesIn);
 
          // Assuming left and right couplings are the same. Doesn't work for the Z boson.
-         std::complex<double> EmitterCharge (vertexEmit.left());
+         std::complex<double> emitterCharge (vertexEmit.left());
 
          // eq. 18 of hep-ph/9510309
          const std::complex<double> A1L =
@@ -388,17 +388,17 @@ FermionIn, FermionOut, Spectator, Emitter, ExchangeField
          // eq. 19 of hep-ph/9510309
          const std::complex<double> A2L = 
             vertexOut.left() * vertexIn.right() * OneLoopFunctionE(x) 
-            + vertexOut.left()* vertexIn.left() * EmitterMass/leptonMass * OneLoopFunctionF(x);
+            + vertexOut.left()* vertexIn.left() * emitterMass/fermionMass * OneLoopFunctionF(x);
 
          // eq. 18 & 18 of hep-ph/9510309 after replacement L <-> R
          const std::complex<double> A1R = 
             1./18. * vertexOut.left() * vertexIn.right() * OneLoopFunctionD(x);
          const std::complex<double> A2R = 
             vertexOut.right() * vertexIn.left() * OneLoopFunctionE(x) 
-            + vertexOut.right()* vertexIn.right() * EmitterMass/leptonMass * OneLoopFunctionF(x);
+            + vertexOut.right()* vertexIn.right() * emitterMass/fermionMass * OneLoopFunctionF(x);
          const std::complex<double> massFactor = pow(exchangeFieldMass,-2);
 
-         res -= oneOver32PiSquared * EmitterCharge * massFactor 
+         res -= oneOver32PiSquared * emitterCharge * massFactor 
             * std::valarray<std::complex<double>> {A1L, A1R, A2L, A2R};
       }
    }
