@@ -400,7 +400,7 @@ CalculateObservable[FlexibleSUSYObservable`MuEGamma[pIn_[idxIn_], pOut_[idxOut_]
             specStr = ToString[spectator]
     },
            structName <> ".MuEGamma1(" <> pInStr <> ", " <> idxInStr <> ", " <> pOutStr <> ", " <> idxOutStr <> ", " <> specStr <> ") = " <>
-           FlexibleSUSY`FSModelName <> "_mu_to_egamma::calculate_" <> pInStr <> "_to_" <> pOutStr <> "_" <> specStr <> "(" <> idxInStr <> ", " <> idxOutStr <> ", MODEL);"
+           FlexibleSUSY`FSModelName <> "_mu_to_egamma::calculate_" <> pInStr <> "_to_" <> pOutStr <> "_" <> specStr <> "(" <> idxInStr <> ", " <> idxOutStr <> ", MODEL, qedqcd, physical_input);"
           ];
 
 FillGM2CalcInterfaceData[struct_String] :=
