@@ -22,8 +22,8 @@
 
 Off[General::spell]
 
-Model`Name = "ThreeHDM";
-Model`NameLaTeX ="Three Higgs Doublet Model";
+Model`Name = "I21HDM";
+Model`NameLaTeX ="Two Inert + 1 Higgs Doublet Model";
 Model`Authors = "W. Kotlarski";
 Model`Date = "2018-04-16";
 

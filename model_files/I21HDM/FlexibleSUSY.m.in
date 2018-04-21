@@ -1,7 +1,7 @@
 
 FSModelName = "@CLASSNAME@";
 FSEigenstates = SARAH`EWSB;
-FSDefaultSARAHModel = "ThreeHDM";
+FSDefaultSARAHModel = "I21HDM";
 
 OnlyLowEnergyFlexibleSUSY = True;
 
