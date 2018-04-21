@@ -85,7 +85,7 @@ LagHC = (
    - Lambda1 conj[H1].H2.conj[H1].H2
    - Lambda2 conj[H2].H3.conj[H2].H3
    - Lambda3 conj[H3].H1.conj[H3].H1
-   - Yd conj[H2].d.q + Ye conj[H2].e.l + Yu H3.u.q
+   - Yd conj[H2].d.q + Ye conj[H2].e.l + Yu H1.u.q
 );
 
 (* Gauge Sector *)
@@ -98,9 +98,9 @@ DEFINITION[EWSB][GaugeSector] = {
 (* ----- VEVs ---- *)
 
 DEFINITION[EWSB][VEVs] = {    
-   {H10, {0, 0}, {sigma1, \[ImaginaryI]/Sqrt[2]}, {phi1, 1/Sqrt[2]}},
+   {H10, {v1, 1/Sqrt[2]}, {sigma1, \[ImaginaryI]/Sqrt[2]}, {phi1, 1/Sqrt[2]}},     
    {H20, {v2, 1/Sqrt[2]}, {sigma2, \[ImaginaryI]/Sqrt[2]}, {phi2, 1/Sqrt[2]}},     
-   {H30, {v3, 1/Sqrt[2]}, {sigma3, \[ImaginaryI]/Sqrt[2]}, {phi3, 1/Sqrt[2]}}     
+   {H30, {0, 0}, {sigma3, \[ImaginaryI]/Sqrt[2]}, {phi3, 1/Sqrt[2]}}
 };
  
 

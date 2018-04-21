@@ -54,20 +54,20 @@ Block SMINPUTS               # Standard Model inputs
    23   1.040000000e-01      # ms(2 GeV) MS-bar
    24   1.270000000e+00      # mc(mc) MS-bar
 Block MINPAR                 # Input parameters
-    1   10.1                    # Lambda11IN
-    2   10.2                  # Lambda22IN
-    3   10.5                  # Lambda33IN
-    4   0.1                  # Lambda12IN
-    5   0.2                   # Lambda23IN
-    6   0.4                    # Lambda31IN
-    7   0.2                    # LambdaP12IN
-    8   0.5                 # LambdaP23IN
-    9  0.2                   # LambdaP31IN
-    10  0.1                   # Lambda1IN
-    11  0.1                   # Lambda2IN
-    12 0.4                   # Lambda3IN
-    13 1e+5                # M122IN
+    1   0.1                    # Lambda11IN
+    2   0.                  # Lambda22IN
+    3   0.                  # Lambda33IN
+    4   0.                  # Lambda12IN
+    5   0.                   # Lambda23IN
+    6   0.                    # Lambda31IN
+    7   0.                    # LambdaP12IN
+    8   0.                 # LambdaP23IN
+    9  0.                   # LambdaP31IN
+    10  0.                   # Lambda1IN
+    11  0.                   # Lambda2IN
+    12 0.                   # Lambda3IN
+    13 -1e+4                # M122IN
     14 3.5e+8              # M12IN
-    15 20                  # TanBeta
+    15 2                  # TanBeta
 Block EXTPAR
     0   126                  # Qin

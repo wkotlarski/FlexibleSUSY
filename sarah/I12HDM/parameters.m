@@ -111,8 +111,7 @@ ParameterDefinitions = {
 
 {v1,        { Description -> "Down-VEV", LaTeX -> "v_1"}}, 
 {v2,        { Description -> "Up-VEV", LaTeX -> "v_2"}},       
-{v3,        { Description -> "Whatever-VEV", LaTeX -> "v_3"}},       
-{v,         { Description -> "EW-VEV", DependenceSPheno -> Sqrt[v3^2] }},
+{v,         { Description -> "EW-VEV", DependenceSPheno -> Sqrt[v1^2 + v2^2] }},
              
 {\[Beta],   { Description -> "Pseudo Scalar mixing angle"  }},             
 {TanBeta,   { Description -> "Tan Beta" }},              
