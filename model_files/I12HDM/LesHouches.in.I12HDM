@@ -5,10 +5,10 @@ Block FlexibleSUSY
     1   0                    # max. iterations (0 = automatic)
     2   0                    # algorithm (0 = all, 1 = two_scale, 2 = semi_analytic)
     3   0                    # calculate SM pole masses
-    4   0                    # pole mass loop order
-    5   0                    # EWSB loop order
-    6   0                    # beta-functions loop order
-    7   0                    # threshold corrections loop order
+    4   1                    # pole mass loop order
+    5   1                    # EWSB loop order
+    6   1                    # beta-functions loop order
+    7   1                    # threshold corrections loop order
     8   0                    # Higgs 2-loop corrections O(alpha_t alpha_s)
     9   0                    # Higgs 2-loop corrections O(alpha_b alpha_s)
    10   0                    # Higgs 2-loop corrections O((alpha_t + alpha_b)^2)
@@ -16,7 +16,7 @@ Block FlexibleSUSY
    12   0                    # force output
    13   0                    # Top pole mass QCD corrections (0 = 1L, 1 = 2L, 2 = 3L)
    14   1.000000000e-11      # beta-function zero threshold
-   15   0                    # calculate observables (a_muon, ...)
+   15   1                    # calculate observables (a_muon, ...)
    16   0                    # force positive majorana masses
    17   0                    # pole mass renormalization scale (0 = SUSY scale)
    18   0                    # pole mass renormalization scale in the EFT (0 = min(SUSY scale, Mt))
@@ -24,7 +24,7 @@ Block FlexibleSUSY
    20   2                    # EFT loop order for upwards matching
    21   1                    # EFT loop order for downwards matching
    22   0                    # EFT index of SM-like Higgs in the BSM model
-   23   0                    # calculate BSM pole masses
+   23   1                    # calculate BSM pole masses
    24   123111321            # individual threshold correction loop orders
    25   0                    # ren. scheme for Higgs 3L corrections (0 = DR, 1 = MDR)
    26   0                    # Higgs 3-loop corrections O(alpha_t alpha_s^2)
@@ -54,7 +54,7 @@ Block SMINPUTS               # Standard Model inputs
    23   1.040000000e-01      # ms(2 GeV) MS-bar
    24   1.270000000e+00      # mc(mc) MS-bar
 Block MINPAR                 # Input parameters
-    1   0.1                    # Lambda11IN
+    1   1.                    # Lambda11IN
     2   0.                  # Lambda22IN
     3   0.                  # Lambda33IN
     4   0.                  # Lambda12IN
