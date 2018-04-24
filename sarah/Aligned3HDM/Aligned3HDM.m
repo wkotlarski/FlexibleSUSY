@@ -86,7 +86,7 @@ LagHC = (
    - Lambda2 conj[H2].H3.conj[H2].H3
    - Lambda3 conj[H3].H1.conj[H3].H1
    - Yd conj[H2].d.q + Ye conj[H2].e.l + Yu H1.u.q
-   - Etad conj[H3].d.q (*+ Etae conj[H3].e.l + Etau H3.u.q*)
+   - epsU conj[H3].d.q (*+ Etae conj[H3].e.l + Etau H3.u.q*)
 );
 
 (* Gauge Sector *)

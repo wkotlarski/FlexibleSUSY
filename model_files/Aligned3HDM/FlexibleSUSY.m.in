@@ -21,7 +21,7 @@ MINPAR = {
     {11, Lambda2IN},
     {12, Lambda3IN},
     {13, M122IN},
-    {14, M32},
+    {14, v3IN},
     {15, TanBeta},
     {16, EtadIN},
     {17, EtauIN},
@@ -32,7 +32,7 @@ EXTPAR = {
     {0, Qin}
 };
 
-EWSBOutputParameters = {M12, M22, v3};
+EWSBOutputParameters = {M12, M22, M32};
 
 SUSYScale = Qin;
 
@@ -51,7 +51,8 @@ SUSYScaleInput = {
     {LambdaP12, LambdaP12IN},
     {LambdaP23, LambdaP23IN},
     {LambdaP31, LambdaP31IN},
-    {M122   , M122IN}
+    {M122   , M122IN},
+    {v3, v3IN}
 };
 
 LowScale = LowEnergyConstant[MZ];
@@ -61,17 +62,32 @@ LowScaleFirstGuess = LowEnergyConstant[MZ];
 LowScaleInput = {
    {v1, 2 MZMSbar / Sqrt[GUTNormalization[g1]^2 g1^2 + g2^2] Cos[ArcTan[TanBeta]]},
    {v2, 2 MZMSbar / Sqrt[GUTNormalization[g1]^2 g1^2 + g2^2] Sin[ArcTan[TanBeta]]},
-   {Yu, Automatic},
-   {Yd, Automatic},
-   {Ye, Automatic}
+   {Yu[1,1], 1},
+   {Yu[2,2], 1},
+   {Yu[3,3], 1},
+   {Yd[1,1], 1},
+   {Yd[2,2], 1},
+   {Yd[3,3], 1},
+   {Ye[1,1], 1},
+   {Ye[2,2], 1},
+   {Ye[3,3], 1},
+   {epsU[1,1], 1},
+   {epsU[2,2], 1},
+   {epsU[3,3], 1}
 };
 
 InitialGuessAtLowScale = {
    {v1, LowEnergyConstant[vev] Cos[ArcTan[TanBeta]]},
    {v2, LowEnergyConstant[vev] Sin[ArcTan[TanBeta]]},
-   {Yu, Automatic},
-   {Yd, Automatic},
-   {Ye, Automatic}
+      {Ye[1,1], -LowEnergyConstant[yeSM] / Cos[ArcTan[TanBeta]]},
+   {Ye[2,2], -LowEnergyConstant[ymSM] / Cos[ArcTan[TanBeta]]},
+   {Ye[3,3], -LowEnergyConstant[ylSM] / Cos[ArcTan[TanBeta]]},
+   {Yd[1,1], -LowEnergyConstant[ydSM] / Cos[ArcTan[TanBeta]]},
+   {Yd[2,2], -LowEnergyConstant[ysSM] / Cos[ArcTan[TanBeta]]},
+   {Yd[3,3], -LowEnergyConstant[ybSM] / Cos[ArcTan[TanBeta]]},
+   {Yu[1,1], -LowEnergyConstant[yuSM] / Sin[ArcTan[TanBeta]]},
+   {Yu[2,2], -LowEnergyConstant[ycSM] / Sin[ArcTan[TanBeta]]},
+   {Yu[3,3], -LowEnergyConstant[ytSM] / Sin[ArcTan[TanBeta]]}
 };
 
 DefaultPoleMassPrecision = MediumPrecision;

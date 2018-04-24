@@ -46,13 +46,13 @@ ParameterDefinitions = {
              									{0, Mass[Fe,2],0},
              									{0, 0, Mass[Fe,3]}}}}, 
                                                                             
-{Etau,        { Description -> "Up-Eta-Coupling",
-   LesHouches -> Etau,
-   OutputName -> Etau,
+{epsU,        { Description -> "Up-Eta-Coupling",
+   LesHouches -> epsU,
+   OutputName -> epsU,
 			 DependenceNum ->  Sqrt[2]/v2* {{Mass[Fu,1],0,0},
              									{0, Mass[Fu,2],0},
              									{0, 0, Mass[Fu,3]}}}}, 
-             									
+                     (*						
 {Etad,        { Description -> "Down-Eta-Coupling",
    LesHouches -> Etad,
    OutputName -> Etad,
@@ -66,7 +66,7 @@ ParameterDefinitions = {
 			  DependenceNum ->  Sqrt[2]/v1* {{Mass[Fe,1],0,0},
              									{0, Mass[Fe,2],0},
              									{0, 0, Mass[Fe,3]}}}}, 
-                                                                           
+                       *)                                                    
 {Lambda1,    { LaTeX -> "\\lambda_1",
                OutputName -> Lam1,
                LesHouches -> {HMIX,31}}},
