@@ -32,14 +32,14 @@ Model`Date = "2018-04-16";
 (*   Particle Content*)
 (*-------------------------------------------*)
 
-(* Gauge Superfields *)
+(* Gauge fields *)
 
-Gauge[[1]]={B,   U[1], hypercharge, g1,False};
-Gauge[[2]]={WB, SU[2], left,        g2,True};
-Gauge[[3]]={G,  SU[3], color,       g3,False};
+Gauge[[1]] = {B,   U[1], hypercharge, g1, False};
+Gauge[[2]] = {WB, SU[2], left,        g2, True};
+Gauge[[3]] = {G,  SU[3], color,       g3, False};
 
 
-(* Chiral Superfields *)
+(* Matter fields *)
 
 FermionFields[[1]] = {q, 3, {uL,dL},     1/6, 2, 3};  
 FermionFields[[2]] = {l, 3, {vL,eL},    -1/2, 2, 1};
@@ -52,20 +52,17 @@ ScalarFields[[2]] =  {H2, 1, {H2p, H20},     1/2, 2,  1};
 ScalarFields[[3]] =  {H3, 1, {H3p, H30},     1/2, 2,  1};
 
 
-     
-
-
 (*----------------------------------------------*)
 (*   DEFINITION                                 *)
 (*----------------------------------------------*)
 
-NameOfStates={GaugeES, EWSB};
+NameOfStates = {GaugeES, EWSB};
 
 (* ----- Before EWSB ----- *)
 
-DEFINITION[GaugeES][Additional]= {
-	{LagHC, { AddHC->True}},
-	{LagNoHC,{ AddHC->False}}
+DEFINITION[GaugeES][Additional] = {
+	{LagHC, {AddHC->True}},
+	{LagNoHC, {AddHC->False}}
 };
 
 
@@ -93,48 +90,47 @@ LagHC = (
 
 (* Gauge Sector *)
 
-DEFINITION[EWSB][GaugeSector] =
-{ 
-  {{VB,VWB[3]},{VP,VZ},ZZ},
-  {{VWB[1],VWB[2]},{VWm,conj[VWm]},ZW}
+DEFINITION[EWSB][GaugeSector] = { 
+  {{VB, VWB[3]}, {VP, VZ}, ZZ},
+  {{VWB[1],VWB[2]}, {VWm, conj[VWm]}, ZW}
 };     
         
-        
-          	
-
 (* ----- VEVs ---- *)
 
 DEFINITION[EWSB][VEVs] = {    
-   {H10, {0, 1/Sqrt[2]}, {sigma1, \[ImaginaryI]/Sqrt[2]}, {phi1, 1/Sqrt[2]}},
-   {H20, {0, 1/Sqrt[2]}, {sigma2, \[ImaginaryI]/Sqrt[2]}, {phi2, 1/Sqrt[2]}},     
+   {H10, {0, 1/Sqrt[2]},   {sigma1, \[ImaginaryI]/Sqrt[2]}, {phi1, 1/Sqrt[2]}},
+   {H20, {0, 1/Sqrt[2]},   {sigma2, \[ImaginaryI]/Sqrt[2]}, {phi2, 1/Sqrt[2]}},     
    {H30, {v3,  1/Sqrt[2]}, {sigma3, \[ImaginaryI]/Sqrt[2]}, {phi3, 1/Sqrt[2]}}     
 };
  
 
-DEFINITION[EWSB][MatterSector]=   
-    { {{phi1, phi2, phi3}, {hh, ZH}},
-      {{sigma1, sigma2, sigma3}, {Ah, ZA}},
-      {{conj[H1p],conj[H2p], conj[H3p]},{Hm,ZP}},
-      {{{dL}, {conj[dR]}}, {{DL,Vd}, {DR,Ud}}},
-      {{{uL}, {conj[uR]}}, {{UL,Vu}, {UR,Uu}}},
-      {{{eL}, {conj[eR]}}, {{EL,Ve}, {ER,Ue}}}       };  
+DEFINITION[EWSB][MatterSector] = { 
+   {{phi1, phi2, phi3}, {hh, ZH}},
+   {{sigma1, sigma2, sigma3}, {Ah, ZA}},
+   {{conj[H1p],conj[H2p], conj[H3p]}, {Hm, ZP}},
+   {{{dL}, {conj[dR]}}, {{DL,Vd}, {DR, Ud}}},
+   {{{uL}, {conj[uR]}}, {{UL,Vu}, {UR, Uu}}},
+   {{{eL}, {conj[eR]}}, {{EL,Ve}, {ER, Ue}}}       
+};  
 
 
 (*------------------------------------------------------*)
 (* Dirac-Spinors *)
 (*------------------------------------------------------*)
 
-DEFINITION[EWSB][DiracSpinors]={
- Fd ->{  DL, conj[DR]},
- Fe ->{  EL, conj[ER]},
- Fu ->{  UL, conj[UR]},
- Fv ->{  vL, 0}};
+DEFINITION[EWSB][DiracSpinors] = {
+   Fd ->{  DL, conj[DR]},
+   Fe ->{  EL, conj[ER]},
+   Fu ->{  UL, conj[UR]},
+   Fv ->{  vL, 0}
+};
 
-DEFINITION[EWSB][GaugeES]={
- Fd1 ->{  FdL, 0},
- Fd2 ->{  0, FdR},
- Fu1 ->{  Fu1, 0},
- Fu2 ->{  0, Fu2},
- Fe1 ->{  Fe1, 0},
- Fe2 ->{  0, Fe2}};
+DEFINITION[EWSB][GaugeES] = {
+   Fd1 ->{  FdL, 0},
+   Fd2 ->{  0, FdR},
+   Fu1 ->{  Fu1, 0},
+   Fu2 ->{  0, Fu2},
+   Fe1 ->{  Fe1, 0},
+   Fe2 ->{  0, Fe2}
+};
 

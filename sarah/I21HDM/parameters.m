@@ -79,15 +79,15 @@ ParameterDefinitions = {
                OutputName -> Lam31,
                LesHouches -> {HMIX,39}}},
                
-{LambdaP12,    { LaTeX -> "\\lambda'_{12}",
+{LambdaP12,    { LaTeX -> "\\Lambda_{12}",
                OutputName -> LamP12,
                LesHouches -> {HMIX,40}}},
 
-{LambdaP23,    { LaTeX -> "\\lambda'_{23}",
+{LambdaP23,    { LaTeX -> "\\Lambda_{23}",
                OutputName -> LamP23,
                LesHouches -> {HMIX,41}}},
 
-{LambdaP31,    { LaTeX -> "\\lambda'_{31}",
+{LambdaP31,    { LaTeX -> "\\Lambda_{31}",
                OutputName -> LamP31,
                LesHouches -> {HMIX,42}}},
 
@@ -111,16 +111,16 @@ ParameterDefinitions = {
 
 {v1,        { Description -> "Down-VEV", LaTeX -> "v_1"}}, 
 {v2,        { Description -> "Up-VEV", LaTeX -> "v_2"}},       
-{v3,        { Description -> "Whatever-VEV", LaTeX -> "v_3"}},       
+{v3,        { Description -> "Whatever-VEV", LaTeX -> "v_3", OutputName -> v3}},       
 {v,         { Description -> "EW-VEV", DependenceSPheno -> Sqrt[v3^2] }},
              
 {\[Beta],   { Description -> "Pseudo Scalar mixing angle"  }},             
 {TanBeta,   { Description -> "Tan Beta" }},              
 {\[Alpha],  { Description -> "Scalar mixing angle" }},  
 
-{ZH,        { Description->"Scalar-Mixing-Matrix"}},
-{ZA,        { Description->"Pseudo-Scalar-Mixing-Matrix"}},
-{ZP,        { Description->"Charged-Mixing-Matrix"}},  
+{ZH,        { Description->"Scalar-Mixing-Matrix", DependenceOptional -> None}},
+{ZA,        { Description->"Pseudo-Scalar-Mixing-Matrix", DependenceOptional -> None}},
+{ZP,        { Description->"Charged-Mixing-Matrix", DependenceOptional -> None}},  
 
 
 {ThetaW,    { Description -> "Weinberg-Angle"}}, 

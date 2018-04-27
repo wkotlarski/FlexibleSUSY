@@ -31,14 +31,14 @@ Model`Date = "2018-04-16";
 (*   Particle Content*)
 (*-------------------------------------------*)
 
-(* Gauge Superfields *)
+(* Gauge fields *)
 
 Gauge[[1]] = {B,   U[1], hypercharge, g1, False};
 Gauge[[2]] = {WB, SU[2], left,        g2, True};
 Gauge[[3]] = {G,  SU[3], color,       g3, False};
 
 
-(* Chiral Superfields *)
+(* Matter fields *)
 
 FermionFields[[1]] = {q, 3, {uL,dL},     1/6, 2, 3};  
 FermionFields[[2]] = {l, 3, {vL,eL},    -1/2, 2, 1};
@@ -64,7 +64,6 @@ DEFINITION[GaugeES][Additional] = {
 };
 
 
-(* the U(1) x U(1) symmetric part *)
 LagNoHC = (
    - M12 conj[H1].H1 - M22 conj[H2].H2 - M32 conj[H3].H3 
    - Lambda11 conj[H1].H1.conj[H1].H1 
@@ -78,8 +77,6 @@ LagNoHC = (
    - LambdaP31 conj[H3].H1.conj[H1].H3
 );
 
-
-(* Z2 symmetric part, charges (-1,-1,1) *)
 LagHC = (
    - M122 conj[H1].H2
    - Lambda1 conj[H1].H2.conj[H1].H2
@@ -98,9 +95,9 @@ DEFINITION[EWSB][GaugeSector] = {
 (* ----- VEVs ---- *)
 
 DEFINITION[EWSB][VEVs] = {    
-   {H10, {v1, 1/Sqrt[2]}, {sigma1, \[ImaginaryI]/Sqrt[2]}, {phi1, 1/Sqrt[2]}},     
-   {H20, {v2, 1/Sqrt[2]}, {sigma2, \[ImaginaryI]/Sqrt[2]}, {phi2, 1/Sqrt[2]}},     
-   {H30, {0, 0}, {sigma3, \[ImaginaryI]/Sqrt[2]}, {phi3, 1/Sqrt[2]}}
+   {H10, {v1, 1/Sqrt[2]},  {sigma1, \[ImaginaryI]/Sqrt[2]}, {phi1, 1/Sqrt[2]}},     
+   {H20, {v2, 1/Sqrt[2]},  {sigma2, \[ImaginaryI]/Sqrt[2]}, {phi2, 1/Sqrt[2]}},     
+   {H30, {0, 0},           {sigma3, \[ImaginaryI]/Sqrt[2]}, {phi3, 1/Sqrt[2]}}
 };
  
 
@@ -118,7 +115,7 @@ DEFINITION[EWSB][MatterSector] = {
 (* Dirac-Spinors *)
 (*------------------------------------------------------*)
 
-DEFINITION[EWSB][DiracSpinors]={
+DEFINITION[EWSB][DiracSpinors] = {
  Fd ->{  DL, conj[DR]},
  Fe ->{  EL, conj[ER]},
  Fu ->{  UL, conj[UR]},

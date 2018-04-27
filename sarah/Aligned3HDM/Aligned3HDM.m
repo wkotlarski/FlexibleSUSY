@@ -31,14 +31,14 @@ Model`Date = "2018-04-16";
 (*   Particle Content*)
 (*-------------------------------------------*)
 
-(* Gauge Superfields *)
+(* Gauge fields *)
 
 Gauge[[1]] = {B,   U[1], hypercharge, g1, False};
 Gauge[[2]] = {WB, SU[2], left,        g2, True};
 Gauge[[3]] = {G,  SU[3], color,       g3, False};
 
 
-(* Chiral Superfields *)
+(* Matter fields *)
 
 FermionFields[[1]] = {q, 3, {uL,dL},     1/6, 2, 3};  
 FermionFields[[2]] = {l, 3, {vL,eL},    -1/2, 2, 1};
@@ -64,7 +64,6 @@ DEFINITION[GaugeES][Additional] = {
 };
 
 
-(* the U(1) x U(1) symmetric part *)
 LagNoHC = (
    - M12 conj[H1].H1 - M22 conj[H2].H2 - M32 conj[H3].H3 
    - Lambda11 conj[H1].H1.conj[H1].H1 
@@ -79,7 +78,6 @@ LagNoHC = (
 );
 
 
-(* Z2 symmetric part, charges (-1,-1,1) *)
 LagHC = (
    - M122 conj[H1].H2
    - Lambda1 conj[H1].H2.conj[H1].H2
