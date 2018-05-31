@@ -425,4 +425,9 @@ double d1_b0(double /* p2 */, double m2a, double m2b) noexcept
       /(2. * pow3(m2a - m2b));
 }
 
+double c00(double m1, double m2, double m3)
+{   // taken from SARAH/SPheno
+    return 1.0;
+}
+
 } // namespace softsusy
