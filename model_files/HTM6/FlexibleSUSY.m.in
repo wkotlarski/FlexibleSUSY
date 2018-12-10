@@ -1,0 +1,77 @@
+FSModelName = "@CLASSNAME@";
+FSEigenstates = SARAH`EWSB;
+FSDefaultSARAHModel = "HTM6";
+
+OnlyLowEnergyFlexibleSUSY = True;
+
+(* input parameters *)
+
+MINPAR = {
+    {1, LTIN},
+    {2, LT2IN},
+    {3, LHTIN},
+    {4, LHT2IN},
+    {5, KHTIN},
+    {6, vTIN}
+(*    {8, TanBeta}*)
+};
+
+EXTPAR = {
+    {0, Qin}
+};
+
+EWSBOutputParameters = { mu2, MT };
+
+SUSYScale = Qin;
+
+SUSYScaleFirstGuess = Qin;
+
+SUSYScaleInput = {
+    {LT, LTIN},
+    {LT2, LT2IN},
+    {LHT, LHTIN},
+    {LHT2, LHT2IN},
+    {KHT, KHTIN},
+    {vT, vTIN}
+};
+
+LowScale = LowEnergyConstant[MZ];
+
+LowScaleFirstGuess = LowEnergyConstant[MZ];
+
+LowScaleInput = {
+   {vT, vTIN  },
+   {vd, Sqrt[ (2 MZMSbar / Sqrt[GUTNormalization[g1]^2 g1^2 + g2^2])^2 - 2*vTIN^2 ] },
+(*   {vT, 2 MZMSbar / Sqrt[GUTNormalization[g1]^2 g1^2 + g2^2] Sin[ArcTan[TanBeta]] / Sqrt[2]  },*)
+(*   {vd, 2 MZMSbar / Sqrt[GUTNormalization[g1]^2 g1^2 + g2^2] Cos[ArcTan[TanBeta]] },*)
+   {Yu, Automatic},
+   {Yd, Automatic},
+   {Ye, Automatic}
+(*   {Ynu, Automatic}*)
+(*   {v, 2 MZMSbar / Sqrt[GUTNormalization[g1]^2 g1^2 + g2^2] }*)
+};
+
+InitialGuessAtLowScale = {
+   {vT,  vTIN },
+   {vd,  Sqrt[(LowEnergyConstant[vev])^2 - 2*vTIN^2]  },
+(*   {vT,  LowEnergyConstant[vev] Sin[ArcTan[TanBeta]] /Sqrt[2] },*)
+(*   {vd,  LowEnergyConstant[vev] Cos[ArcTan[TanBeta]] },*)
+   {Yu, Automatic},
+   {Yd, Automatic},
+   {Ye, Automatic}
+(*   {Ynu, Automatic}*)
+(*   {v,  LowEnergyConstant[vev] }*)
+};
+
+DefaultPoleMassPrecision = MediumPrecision;
+HighPoleMassPrecision    = {hh, Ah, Hpm};
+MediumPoleMassPrecision  = {};
+LowPoleMassPrecision     = {};
+
+ExtraSLHAOutputBlocks = {
+   {EFFHIGGSCOUPLINGS, NoScale,
+           {{1, FlexibleSUSYObservable`CpHiggsPhotonPhoton},
+            {2, FlexibleSUSYObservable`CpHiggsGluonGluon},
+            {3, FlexibleSUSYObservable`CpPseudoScalarPhotonPhoton},
+            {4, FlexibleSUSYObservable`CpPseudoScalarGluonGluon} } }
+};
