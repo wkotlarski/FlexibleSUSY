@@ -12,7 +12,8 @@ MINPAR = {
     {3, LHTIN},
     {4, LHT2IN},
     {5, KHTIN},
-    {6, vTIN}
+    {6, vTIN},
+    {7, LHIN}
 (*    {8, TanBeta}*)
 };
 
@@ -32,7 +33,8 @@ SUSYScaleInput = {
     {LHT, LHTIN},
     {LHT2, LHT2IN},
     {KHT, KHTIN},
-    {vT, vTIN}
+    {vT, vTIN},
+    {LH, LHIN}
 };
 
 LowScale = LowEnergyConstant[MZ];
