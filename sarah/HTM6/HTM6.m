@@ -1,8 +1,8 @@
 Off[General::spell]
 
-Model`Name = "yTSM";
+Model`Name = "HTM";
 Model`NameLaTeX ="complex $Y=1$ Triplet Extended Standard Model";
-Model`Authors = "F.Staub";
+Model`Authors = "M. Kordiaczyńska";
 Model`Date = "2018-04-06";
 
 
@@ -14,9 +14,9 @@ Model`Date = "2018-04-06";
 
 (* Gauge Superfields *)
 
-Gauge[[1]]={B,   U[1], hypercharge, g1,False};
-Gauge[[2]]={WB, SU[2], left,        g2,True};
-Gauge[[3]]={G,  SU[3], color,       g3,False};
+Gauge[[1]] = {B,   U[1], hypercharge, g1, False};
+Gauge[[2]] = {WB, SU[2], left,        g2, True};
+Gauge[[3]] = {G,  SU[3], color,       g3, False};
 
 
 (* Chiral Superfields *)
@@ -30,24 +30,17 @@ FermionFields[[5]] = {e, 3, conj[eR],      1, 1,  1};
 ScalarFields[[1]] = {H,    1, {Hp, H0},                           1/2, 2, 1};
 ScalarFields[[2]] = {trip, 1, {{Tp/Sqrt[2],-Tpp},{T0,-Tp/Sqrt[2]}},    1, 3, 1};
 
-
-
-
-
-        
-
-
 (*----------------------------------------------*)
 (*   DEFINITION                                 *)
 (*----------------------------------------------*)
 
-NameOfStates={GaugeES,EWSB};
+NameOfStates = {GaugeES, EWSB};
 
 (* ----- Before EWSB ----- *)
 
 DEFINITION[GaugeES][Additional]= {
-	{LagHC, {AddHC->True}},
-	{LagNoHC,{ AddHC->False}}
+   {LagHC,   {AddHC -> True}},
+   {LagNoHC, {AddHC -> False}}
 };
 
 LagNoHC = -(mu2 conj[H].H  + 1/2 MT conj[trip].trip  + 1/2 LT  epsTensor[lef1b,lef2] epsTensor[lef2b,lef3] epsTensor[lef3b,lef4] epsTensor[lef4b,lef1] trip.conj[trip].trip.conj[trip] \
@@ -63,52 +56,46 @@ ContractionRGE[LT2]=(Delta[lef1, lef2] Delta[lef3, lef4] - Delta[lef1, lef3] Del
 
 (* Gauge Sector *)
 
-DEFINITION[EWSB][GaugeSector] =
-{ 
-  {{VB,VWB[3]},{VP,VZ},ZZ},
-  {{VWB[1],VWB[2]},{VWp,conj[VWp]},ZW}
+DEFINITION[EWSB][GaugeSector] = {
+  {{VB, VWB[3]}, {VP,VZ}, ZZ},
+  {{VWB[1], VWB[2]}, {VWp, conj[VWp]}, ZW}
 };     
         
-        
-          	
-
-
 (* ----- VEVs ---- *)
 
+DEFINITION[EWSB][VEVs] = {
+   {H0, {vd, 1/Sqrt[2]}, {sigmaH, \[ImaginaryI]/Sqrt[2]},{phiH, 1/Sqrt[2]}},
+   {T0, {vT, 1/Sqrt[2]}, {sigmaT, \[ImaginaryI]/Sqrt[2]},{phiT, 1/Sqrt[2]}} 
+}; 
 
-DEFINITION[EWSB][VEVs]= 
-{    {H0,  {vd, 1/Sqrt[2]}, {sigmaH, \[ImaginaryI]/Sqrt[2]},{phiH, 1/Sqrt[2]}},
-      {T0, {vT, 1/Sqrt[2]}, {sigmaT, \[ImaginaryI]/Sqrt[2]},{phiT, 1/Sqrt[2]}} }; 
-
- 
-
-DEFINITION[EWSB][MatterSector]=   
-    {{{phiH,phiT},{hh,ZH}},
-     {{sigmaH,sigmaT},{Ah,ZA}},
-     {{conj[Hp],conj[Tp]},{Hpm,ZP}},
+DEFINITION[EWSB][MatterSector] = {
+   {{phiH, phiT}, {hh,ZH}},
+   {{sigmaH, sigmaT}, {Ah,ZA}},
+   {{conj[Hp], conj[Tp]}, {Hpm,ZP}},
  (*    {{Tpp},{Hpp,{1}}},*)
-     {{{dL}, {conj[dR]}}, {{FDL,Vd}, {FDR,Ud}}},
-     {{{uL}, {conj[uR]}}, {{FUL,Vu}, {FUR,Uu}}},
-     {{{eL}, {conj[eR]}}, {{FEL,Ve}, {FER,Ue}}}};  
+   {{{dL}, {conj[dR]}}, {{FDL,Vd}, {FDR,Ud}}},
+   {{{uL}, {conj[uR]}}, {{FUL,Vu}, {FUR,Uu}}},
+   {{{eL}, {conj[eR]}}, {{FEL,Ve}, {FER,Ue}}}
+};  
 
 
 (*------------------------------------------------------*)
 (* Dirac-Spinors *)
 (*------------------------------------------------------*)
 
-DEFINITION[EWSB][DiracSpinors]={
- Fd ->{  FDL, conj[FDR]},
- Fe ->{  FEL, conj[FER]},
- Fu ->{  FUL, conj[FUR]},
- Fv ->{  vL, 0}};
+DEFINITION[EWSB][DiracSpinors] = {
+   Fd -> {FDL, conj[FDR]},
+   Fe -> {FEL, conj[FER]},
+   Fu -> {FUL, conj[FUR]},
+   Fv -> {vL, 0}
+};
 
-DEFINITION[EWSB][GaugeES]={
- Fd1 ->{  FdL, 0},
- Fd2 ->{  0, FdR},
- Fu1 ->{  Fu1, 0},
- Fu2 ->{  0, Fu2},
- Fe1 ->{  Fe1, 0},
- Fe2 ->{  0, Fe2}};
-
-
+DEFINITION[EWSB][GaugeES] = {
+   Fd1 -> {FdL, 0},
+   Fd2 -> {0, FdR},
+   Fu1 -> {Fu1, 0},
+   Fu2 -> {0, Fu2},
+   Fe1 -> {Fe1, 0},
+   Fe2 -> {0, Fe2}
+};
 
