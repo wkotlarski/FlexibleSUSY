@@ -126,7 +126,9 @@ NPointFunctionFAFC[inFields_List,outFields_List,
           colourFactors, fsFields, fsInFields, fsOutFields,
           externalMomentumRules, nPointFunction},
     toFeynArtsTopologies = {
-            NPointFunctions`OneParticleReducible -> FeynArts`Internal};
+            NPointFunctions`OneParticleReducible -> FeynArts`Internal,
+            NPointFunctions`ExceptTriangles -> FeynArts`Loops[Except[3]],
+            NPointFunctions`ExceptBoxes -> FeynArts`Loops[Except[4]]};
     Utils`AssertWithMessage[loopLevel === 1,
 			"NPointFunctions`NPointFunctionFAFC[]: Only loop level 1 is supported"];
     Utils`AssertWithMessage[
@@ -335,6 +337,7 @@ CalculateAmplitudes[classesAmplitudes_, genericInsertions_List,
       (FormCalc`CalcFeynAmp[Head[genericAmplitudes][#],
                             FormCalc`Dimension -> dimensionParameter,
                             FormCalc`OnShell -> onShellFlag,
+                            FormCalc`FermionChains -> Chiral,
                             FormCalc`Invariants -> False] & /@
         genericAmplitudes) //. FormCalc`GenericList[];
 
