@@ -344,7 +344,7 @@ UniquelyInstantiateGenericFields[exprs_List, {fieldInsertions_List, next___}] :=
 CreateCXXFunctions[nPointFunctions_List, names_List,
     colourFactorProjections_,
     OptionsPattern[{LoopFunctions -> "FlexibleSUSY"}]] :=
-  Module[{loopFunctionRules, hasExternalMomenta, prototypes,
+  Module[{loopFunctionRules, prototypes,
           definitionHeads, definitionBodies,
           auxilliaryClasses, definitions},
     loopFunctionRules = Switch[OptionValue[LoopFunctions],
@@ -364,9 +364,6 @@ CreateCXXFunctions[nPointFunctions_List, names_List,
            LoopTools`D0i[LoopTools`dd00, 0, 0, 0, 0, 0, 0, args__] :> "softsusy::d27"[Sequence @@ (Map[Sqrt, List[args]] /. Sqrt[(x___)^2] :> x)]
          },
        _, Return["Option LoopFunctions must be either LoopTools or FlexibleSUSY"]];
-
-    hasExternalMomenta =
-      FreeQ[#, SARAH`Mom[_Integer, ___]] & /@ nPointFunctions;
 
     prototypes = StringJoin[Riffle[
       "std::complex<double> " <> #[[2]] <>
