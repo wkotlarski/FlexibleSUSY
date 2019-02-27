@@ -802,8 +802,11 @@ not a number: " <> ToString[#]] & /@ colourFactors;
  * n-point correlation function.
  **)
 ExternalIndicesForNPointFunction[nPointFunction_] :=
-  Flatten[Cases[Join[nPointFunction[[1,1]], nPointFunction[[1,2]]],
-            _[indices_List] :> indices]]
+  Join[Flatten[Cases[Join[nPointFunction[[1,1]], nPointFunction[[1,2]]],
+            _[indices_List] :> indices]],
+  Flatten[Cases[Join[nPointFunction[[1,1]], nPointFunction[[1,2]]] /. bar -> Barred,
+            Barred[_[indices_List]] :> indices]]
+  ]
 
 (** \brief Return the c++ expression for the container of the indices
  * of a given (possibly generic) field.
