@@ -1015,7 +1015,9 @@ CreateCXXHeaders[OptionsPattern[{LoopFunctions -> "FlexibleSUSY"}]] :=
   "#include <boost/fusion/include/at_key.hpp>\n\n" <>
   Switch[OptionValue[LoopFunctions],
          "LoopTools", "#include <clooptools.h>",
-         "FlexibleSUSY", "#include \"numerics.h\""]
+         "FlexibleSUSY", "#include \"numerics.h\"",
+         _, Print["CreateCXXHeaders[]: error unsupported loop functions library: ",
+                  OptionValue[LoopFunctions]]]
      
 
 End[];
