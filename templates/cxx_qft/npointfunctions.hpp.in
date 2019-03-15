@@ -166,6 +166,7 @@ struct lorentz_momentum_diff
   int subtrahend_index;
 };
 struct lorentz_inverse_metric {};
+struct triple_vector {};
 
 struct context_with_vertices : context_base
 {
@@ -215,6 +216,15 @@ struct context_with_vertices : context_base
   ) const
   {
     return Vertex<Fields...>::evaluate( indices, model ).value();
+  }
+  
+  template<class ...Fields>
+  std::complex<double> vertex(
+    triple_vector,
+    const typename Vertex<Fields...>::indices_type &indices
+  ) const
+  {  // FIXME: hardcoded odd permutation to agree with SPheno
+    return Vertex<Fields...>::evaluate( indices, model ).value( TripleVectorVertex::odd_permutation{} );
   }
 
   double scale( void ) const
