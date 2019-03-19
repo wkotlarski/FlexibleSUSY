@@ -352,7 +352,7 @@ CreateCXXFunctions[nPointFunctions_List, names_List,
     loopFunctionRules = Switch[OptionValue[LoopFunctions],
       "LoopTools", {},
       "FlexibleSUSY",
-         Print["Warning: Using FlexibleSUSY loop functions will only remap A0, B0, C0, D0 and D00."];
+         Print["Warning: Using FlexibleSUSY loop functions will only remap A0, B0, C0, C00, D0 and D00."];
          Print["Warning: FlexibleSUSY loop functions C0, D0 and D00 require zero external momenta."];
          {
            LoopTools`A0i[LoopTools`aa0, args__] :> "softsusy::a0"[Sequence @@ ("std::sqrt" /@ List[args]),
@@ -362,6 +362,7 @@ CreateCXXFunctions[nPointFunctions_List, names_List,
            LoopTools`B0i[LoopTools`bb0, args__] :> "softsusy::b0"[Sequence @@ ("std::sqrt" /@ List[args]),
                                              "context.scale()"],
            LoopTools`C0i[LoopTools`cc0, 0, 0, 0, args__] :> "softsusy::c0"[Sequence @@ ("std::sqrt" /@ List[args])],
+           LoopTools`C0i[LoopTools`cc00, 0, 0, 0, args__] :> "softsusy::c00"[Sequence @@ ("std::sqrt" /@ List[args]), "context.scale()"],
            LoopTools`D0i[LoopTools`dd0, 0, 0, 0, 0, 0, 0, args__] :> "softsusy::d0"[Sequence @@ ("std::sqrt" /@ List[args])],
            LoopTools`D0i[LoopTools`dd00, 0, 0, 0, 0, 0, 0, args__] :> "softsusy::d27"[Sequence @@ (Map[Sqrt, List[args]] /. Sqrt[(x___)^2] :> x)]
          },
