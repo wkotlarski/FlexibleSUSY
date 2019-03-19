@@ -124,7 +124,7 @@ NPointFunctionFAFC[inFields_List,outFields_List,
           toFeynArtsTopologies,
           topologies, diagrams, amplitudes, genericInsertions,
           colourFactors, fsFields, fsInFields, fsOutFields,
-          externalMomentumRules, nPointFunction},
+          findColourIndex, externalMomentumRules, nPointFunction},
     toFeynArtsTopologies = {
             NPointFunctions`OneParticleReducible -> FeynArts`Internal,
             NPointFunctions`ExceptTriangles -> FeynArts`Loops[Except[3]],
@@ -160,6 +160,10 @@ be either True or False"];
       InsertionLevel -> Classes,
       Model -> feynArtsModel];
     amplitudes = FeynArts`CreateFeynAmp[diagrams];
+
+    (*Remove colour indices*)
+    findColourIndex = Position[amplitudes, FeynArts`Index[Global`Colour, index_Integer]];
+    amplitudes = Delete[amplitudes, findColourIndex];
 
     genericInsertions = Flatten[
       GenericInsertionsForDiagram /@ (List @@ diagrams), 1];
@@ -519,8 +523,8 @@ SetFSConventionRules[] :=
       FeynArts`Index[generationName_, index_Integer] :> 
 				Symbol["SARAH`gt" <> ToString[index]] /;
 				StringMatchQ[SymbolName[generationName], "I"~~___~~"Gen"],
-      FeynArts`Index[Global`Colour, index_Integer] :> 
-				Symbol["SARAH`ct" <> ToString[index]],
+      FeynArts`Index[Global`Colour, index_Integer] :>
+                Symbol["SARAH`ct" <> ToString[index]],
       FeynArts`Index[Global`Gluon, index_Integer] :> 
 				Symbol["SARAH`ct" <> ToString[index]]
     };
