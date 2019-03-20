@@ -38,8 +38,6 @@ FindFermionChains[npointExpression_List, chiralBasis_List] :=
     Utils`AssertWithMessage[
       And @@ (MemberQ[npointExpression, #, 2]& /@ chiralBasis[[All, 2]]),
         "Error: provided basis does not match output of FormCalc"];
-    Utils`AssertWithMessage[And @@ (SameQ[Head[#], Times]& /@ chiralBasis[[All, 2]]),
-      "FindFermionChains only works with 4 external fermions for now."];
 
     basisPos = Flatten[Position[npointExpression, #]& /@ chiralBasis[[All, 2]], 1];
     basisPos[[All, 2]] = basisPos[[All, 2]] - 1;

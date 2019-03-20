@@ -477,7 +477,7 @@ CXXClassForNPointFunction[nPointFunction_, projectColourFactor_,
           numberOfIndices, numberOfMomenta, genericSumPositions,
           genericIndices, genericFields, genericSumNames,
           genericSumCode, preCXXRules, cxxExpr,
-          subexpressions, cxxSubexpressions},
+          subexpressions, cxxSubexpressions, InitializeSums},
     externalIndices = ExternalIndicesForNPointFunction[nPointFunction];
     numberOfIndices = Length[externalIndices];
     numberOfMomenta = If[FreeQ[nPointFunction, SARAH`Mom[_Integer, ___]],
@@ -489,6 +489,9 @@ CXXClassForNPointFunction[nPointFunction_, projectColourFactor_,
     genericFields = #[[1]][GenericIndex[#[[2]]]] & /@ genericIndices;
     genericSumNames = Table["genericSum" <> ToString[k],
                             {k,Length[genericSumPositions]}];
+    InitializeSums = Table["const auto genericsum" <> ToString[k] <> " = " <>
+      genericSumNames[[k]] <> "();\n", {k, Length[genericSumPositions]}];
+
 
     subexpressions = nPointFunction[[2,2]];
     preCXXRules = ToCXXPreparationRules[
@@ -519,9 +522,13 @@ CXXClassForNPointFunction[nPointFunction_, projectColourFactor_,
           genericSumNames}],
       "\n\n"]]
     ];
-
-    cxxExpr = Plus @@ ReplacePart[nPointFunction[[2,1,1]],
-      Rule @@@ Transpose[{genericSumPositions, # <> "()" & /@ genericSumNames}]];
+    
+    If[Length[OptionValue[fermionBasis]] === 0,
+      cxxExpr = Plus @@ ReplacePart[nPointFunction[[2,1,1]],
+        Rule @@@ Transpose[{genericSumPositions, # <> "()" & /@ genericSumNames}]],
+      cxxExpr = Plus @@ ReplacePart[nPointFunction[[2,1,1]],
+        Rule @@@ Transpose[{genericSumPositions, # <> "().at(i)" & /@ genericSumNames}]]
+    ];
     cxxExpr = Parameters`ExpressionToString[cxxExpr];
     cxxExpr = StringReplace[cxxExpr, "\"" -> ""];
 
@@ -553,10 +560,14 @@ CXXClassForNPointFunction[nPointFunction_, projectColourFactor_,
     className <> CXXArgStringForNPointFunctionDefinition[nPointFunction] <> "\n" <>
     ": " <> cxxCorrelationContext <> "{ model, indices, momenta }\n{}\n\n" <>
     If[Length[OptionValue[fermionBasis]] === 0, 
-      "std::complex<double> " ,
-      "std::array<std::complex<double>, " <> ToString[Length[OptionValue[fermionBasis]]] <> "> "
-    ] <> "calculate( void )\n{\nreturn " <>
-    cxxExpr <>
+      "std::complex<double> calculate( void )\n{\nreturn " <> cxxExpr,
+
+      "std::array<std::complex<double>, " <> ToString[Length[OptionValue[fermionBasis]]] <> "> " <>
+      "calculate( void )\n{\nstd::array<std::complex<double>, " <> ToString[Length[OptionValue[fermionBasis]]] <> "> " <>
+      "genericSummation;\n" <> "constexpr int coeffsLength = genericSummation.size();\n" <> InitializeSums <>
+      "for ( std::size_t i=0; i<coeffsLength; i++ ) {\n" <>
+      "  genericSummation.at(i) += " <> cxxExpr <> ";\n}\n" <> "return genericSummation"
+    ] <>
     ";\n}" <>
     "\n};"
   ]
@@ -1092,8 +1103,11 @@ GenericFieldType[field_] :=
  * \returns the c++ code for the necessary headers for evaluation
  * of n-point correlation functions.
  **)
-CreateCXXHeaders[OptionsPattern[{LoopFunctions -> "FlexibleSUSY"}]] :=
-  "#include \"cxx_qft/" <> FlexibleSUSY`FSModelName <> "_npointfunctions.hpp\"\n" <>
+CreateCXXHeaders[OptionsPattern[{LoopFunctions -> "FlexibleSUSY", UseWilsonCoeffs -> False}]] :=
+  If[OptionValue[UseWilsonCoeffs] === False,
+    "#include \"cxx_qft/" <> FlexibleSUSY`FSModelName <> "_npointfunctions.hpp\"\n",
+    "#include \"cxx_qft/" <> FlexibleSUSY`FSModelName <> "_npointfunctions_wilsoncoeffs.hpp\"\n"
+  ] <>
   "#include \"concatenate.hpp\"\n\n" <>
   "#include <boost/fusion/include/at_key.hpp>\n\n" <>
   Switch[OptionValue[LoopFunctions],
