@@ -456,9 +456,9 @@ SetFSConventionRules[] :=
        #[[1]], #[[2]]} & /@ fieldNames;
        
     massRules = Join[
-      (Symbol["Mass" <> #][indices__] :> 
+      (Symbol["Mass" <> ToString[ToSymbol[#]]][indices__] :>
        SARAH`Mass[ToExpression[#][{indices}]]) & /@ fieldNames[[All,1]],
-      (Symbol["Mass" <> #] ->  
+      (Symbol["Mass" <> ToString[ToSymbol[#]]] ->
        SARAH`Mass[ToExpression[#]]) & /@ fieldNames[[All,1]],
       {FeynArts`Mass[field_,faSpec_ : Null] :> SARAH`Mass[field]}
     ];
