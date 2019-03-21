@@ -82,5 +82,6 @@ test/test_*.callgrind.out*
 test/test_SM_npointfunctions.cpp
 test/test_SM_matching_selfenergy_Fd.cpp
 test/test_MSSM_npointfunctions.cpp
+test/test_MSSM_matching_selfenergy_Fd.cpp
 test/test_SM_cxxdiagrams.cpp
 
