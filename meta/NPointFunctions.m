@@ -662,8 +662,13 @@ ToCXXPreparationRules[externalIndices_List,
         StringJoin[Riffle[CXXIndicesForField /@ {fields}, ", "]] <>
       " ) )"
     };
-    massRules = SARAH`Mass[field_String[indices_String]] :>
-      "context.mass<" <> field <> ">( " <> indices <> " )";
+    massRules = {SARAH`Mass[field_String[indices_String]] :>
+      "context.mass<" <> field <> ">( " <> indices <> " )",
+      SARAH`Mass[field_[{indices__}]] :>
+        "context.mass<" <> "fields::" <> ToString[field] <> ">( " <>
+        "std::array<int, " <> ToString[Length[{indices}]] <> "> " <>
+        ToString[{indices}] <> " )"
+    };
     subexprRules = Rule[#[[1]], ToString[#[[1]]] <> "_()"] & /@
       subexpressions;
 
