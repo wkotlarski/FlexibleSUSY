@@ -86,6 +86,7 @@ TEST_META := \
 		$(DIR)/test_ThreeLoopQCD.m \
 		$(DIR)/test_ThresholdCorrections.m \
 		$(DIR)/test_TreeMasses.m \
+		$(DIR)/test_Vertices.m \
 		$(DIR)/test_Vertices_SortCp.m \
 		$(DIR)/test_Vertices_colorsum.m
 
@@ -187,7 +188,8 @@ endif
 
 ifeq ($(WITH_MRSSM2),yes)
 TEST_SRC += \
-		$(DIR)/test_MRSSM2_gmm2.cpp
+		$(DIR)/test_MRSSM2_gmm2.cpp \
+		$(DIR)/test_MRSSM2_l_to_lgamma.cpp
 endif
 
 endif # ifneq ($(findstring two_scale,$(SOLVERS)),)
@@ -421,7 +423,8 @@ TEST_SRC += \
 		$(DIR)/test_SM_higgs_loop_corrections.cpp \
 		$(DIR)/test_SM_tree_level_spectrum.cpp \
 		$(DIR)/test_SM_three_loop_spectrum.cpp \
-		$(DIR)/test_SM_two_loop_spectrum.cpp
+		$(DIR)/test_SM_two_loop_spectrum.cpp \
+		$(DIR)/test_SM_cxxdiagrams.cpp
 endif
 
 ifeq ($(ENABLE_FEYNARTS) $(ENABLE_FORMCALC),yes yes)
@@ -768,6 +771,10 @@ $(DIR)/test_loopfunctions.x: $(LIBCMSSM)
 
 $(DIR)/test_sfermions.x: $(LIBCMSSM)
 
+$(DIR)/test_SM_cxxdiagrams.cpp : $(DIR)/test_SM_cxxdiagrams.meta $(DIR)/test_SM_cxxdiagrams.cpp.in $(META_SRC) $(METACODE_STAMP_SM)
+		"$(MATH)" -run "AppendTo[\$$Path, \"./meta/\"]; Get[\"$<\"]; Quit[0];"
+$(DIR)/test_SM_cxxdiagrams.x: $(LIBSM)
+
 $(DIR)/test_SM_npointfunctions.cpp : $(DIR)/test_SM_npointfunctions.meta $(DIR)/test_SM_npointfunctions.cpp.in $(META_SRC) $(METACODE_STAMP_SM)
 		"$(MATH)" -run "AppendTo[\$$Path, \"./meta/\"]; Get[\"$<\"]; Quit[0];"
 $(DIR)/test_SM_npointfunctions.x: $(LIBSM)
@@ -781,6 +788,8 @@ $(DIR)/test_CMSSM_database.x: $(LIBCMSSM)
 $(DIR)/test_CMSSM_gluino.sh: $(RUN_SOFTPOINT_EXE)
 
 $(DIR)/test_MRSSM2_gmm2.x: $(LIBMRSSM2)
+
+$(DIR)/test_MRSSM2_l_to_lgamma.x: $(LIBMRSSM2)
 
 $(DIR)/test_CMSSM_model.x: $(LIBCMSSM)
 
