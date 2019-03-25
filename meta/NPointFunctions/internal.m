@@ -44,6 +44,7 @@ ExcludedTopologies::usage="Option to exclude specific topologies in FeynArts";
 OneParticleReducible::usage="Possible value for ExcludedTopologies.";
 ExceptBoxes::usage="Excude all topologies but box diagrams";
 ExceptTriangles::usage="Exclude all topologies but triangle diagrams";
+OnShellFlag::usage="Option to use on-shell external fields";
 
 NPointFunctionFAFC::usage="Calculate the n-point correlation function for a set of \
 incoming and a set of outgoing fields.";
@@ -118,10 +119,12 @@ NPointFunctionFAFC[inFields_List,outFields_List,
     OptionsPattern[{LoopLevel -> 1,
                     Regularize -> DimensionalReduction,
                     ZeroExternalMomenta -> False,
-                    ExcludedTopologies -> {}}]]:=
+                    ExcludedTopologies -> {},
+                    OnShellFlag -> False}]]:=
   Module[{loopLevel = OptionValue[LoopLevel],
           regularizationScheme = OptionValue[Regularize],
           zeroExternalMomenta = OptionValue[ZeroExternalMomenta],
+          onShellFlag = OptionValue[OnShellFlag],
           excludedTopologies,
           toFeynArtsTopologies,
           topologies, diagrams, amplitudes, genericInsertions,
@@ -148,6 +151,9 @@ be either True or False"];
         "NPointFunctions`NPointFunctionFAFC[]: Option ExcludedTopologies: "
         <> ToString[OptionValue[ExcludedTopologies]] <> " is not valid."];
     excludedTopologies = OptionValue[ExcludedTopologies] /. toFeynArtsTopologies;
+    Utils`AssertWithMessage[onShellFlag === True || onShellFlag === False,
+        "NPointFunctions`NPointFunctionFAFC[]: Option OnShellFlag must be either \
+        True or False."];
 
     If[DirectoryQ[formCalcDir] === False,
        CreateDirectory[formCalcDir]];
@@ -189,7 +195,7 @@ be either True or False"];
     nPointFunction = {{fsInFields, fsOutFields},
       Insert[
         CalculateAmplitudes[amplitudes, genericInsertions,
-          regularizationScheme, zeroExternalMomenta] /. externalMomentumRules,
+          regularizationScheme, zeroExternalMomenta, OnShellFlag -> onShellFlag] /. externalMomentumRules,
         colourFactors,
         {1, -1}
       ]};
@@ -321,11 +327,12 @@ AtomHead[x_] := If[AtomQ[x], x, AtomHead[Head[x]]]
  * expressions.
  **)
 CalculateAmplitudes[classesAmplitudes_, genericInsertions_List,
-    regularizationScheme_, zeroExternalMomenta_] :=
+    regularizationScheme_, zeroExternalMomenta_,
+    OptionsPattern[OnShellFlag -> False]] :=
   Module[{genericAmplitudes,calculatedAmplitudes,
           abbreviations,subexpressions,combinatorialFactors,
           prefixRules, dimensionParameter, pairs, zeroedRules, pair,
-          onShellFlag = zeroExternalMomenta},
+          onShellFlag = OptionValue[OnShellFlag]},
     combinatorialFactors = CombinatorialFactorsForAmplitudeInsertions /@
       (List @@ classesAmplitudes);
     genericAmplitudes = FeynArts`PickLevel[Generic][classesAmplitudes];

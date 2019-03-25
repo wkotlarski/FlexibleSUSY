@@ -37,6 +37,7 @@ OneParticleReducible::usage="Possible value for ExcludedTopologies.";
 ExceptBoxes::usage="Excude all topologies but box diagrams";
 ExceptTriangles::usage="Exclude all topologies but triangle diagrams";
 fermionBasis::usage="Specify the fermion basis used for the matching";
+OnShellFlag::usage="Option to use on-shell external fields";
 
 NPointFunction::usage="Calculate the n-point correlation function for a set of \
 incoming and a set of outgoing fields.";
@@ -130,7 +131,8 @@ NPointFunction[inFields_List,outFields_List,
                       FlexibleSUSY`DRbar, DimensionalReduction,
                       FlexibleSUSY`MSbar, DimensionalRegularization],
                     UseCache -> True, ZeroExternalMomenta -> False,
-                    ExcludedTopologies -> {}}]]:=
+                    ExcludedTopologies -> {},
+                    OnShellFlag -> False}]]:=
   Module[{loopLevel, zeroExternalMomenta, regularizationScheme, nPointMeta,
           useCache, excludedTopologies,
           sarahOutputDir = SARAH`$sarahCurrentOutputMainDir,
@@ -165,6 +167,11 @@ be either True or False"];
             True or False."];
 
     excludedTopologies = OptionValue[ExcludedTopologies];
+
+    onShellFlag = OptionValue[OnShellFlag];
+    Utils`AssertWithMessage[onShellFlag === True || onShellFlag === False,
+        "NPointFunctions`NPointFunction[]: Option OnShellFlag must be either \
+        True or False."];
 
     (*Utils`AssertWithMessage[And @@
 			TreeMasses`IsScalar /@ Join[inFields, outFields],
@@ -216,7 +223,8 @@ supported (for now)."];*)
       fsMetaDir, feynArtsDir, formCalcDir, feynArtsModel,
       particleNamesFile, substitutionsFile, particleNamespaceFile,
       inFANames, outFANames,
-      loopLevel, regularizationScheme, zeroExternalMomenta, excludedTopologies];
+      loopLevel, regularizationScheme, zeroExternalMomenta, excludedTopologies,
+      onShellFlag];
 
     nPointFunction = ParallelEvaluate[
       $Path = currentPath;
@@ -234,7 +242,8 @@ supported (for now)."];*)
         LoopLevel -> loopLevel,
         Regularize -> regularizationScheme,
         ZeroExternalMomenta -> zeroExternalMomenta,
-        ExcludedTopologies -> excludedTopologies],
+        ExcludedTopologies -> excludedTopologies,
+        OnShellFlag -> onShellFlag],
       subKernels[[2]]];
     
     CloseKernels[subKernels];
