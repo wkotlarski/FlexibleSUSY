@@ -173,10 +173,11 @@ be either True or False"];
         "NPointFunctions`NPointFunction[]: Option OnShellFlag must be either \
         True or False."];
 
-    (*Utils`AssertWithMessage[And @@
-			TreeMasses`IsScalar /@ Join[inFields, outFields],
-			"NPointFunctions`NPointFunction[]: Only external scalars are \
-supported (for now)."];*)
+    Utils`AssertWithMessage[And @@
+			TreeMasses`IsScalar /@ Join[inFields, outFields] ||
+            And @@ TreeMasses`IsFermion /@ Join[inFields, outFields],
+			"NPointFunctions`NPointFunction[]: Only external scalars/fermions are \
+supported (for now)."];
 
     inFields = Vertices`StripFieldIndices[inFields];
     outFields = Vertices`StripFieldIndices[outFields];
