@@ -60,7 +60,7 @@ ChiralBasis = {{"value_right",
      FormCalc`Spinor[Mom[2], 0, -1]]}};
 
 findBasis = WilsonCoeffs`FindFermionChains[FdSelfenergy[[2, 2]], ChiralBasis];
-FdSelfenergy = WilsonCoeffs`RemoveFermionChains[WilsonCoeffs`MatchingConditions[FdSelfenergy, findBasis[[All, 2]]]];
+FdSelfenergy = WilsonCoeffs`RemoveFermionChains[WilsonCoeffs`matchingConditions[FdSelfenergy, findBasis[[All, 2]]]];
 
 FdSelfenergyCode = NPointFunctions`CreateCXXFunctions[
 	{FdSelfenergy}, {"selfenergy_Fd_1loop"}, {SARAH`Delta[ct1, ct2]}, fermionBasis -> ChiralBasis[[All, 1]]][[2]];

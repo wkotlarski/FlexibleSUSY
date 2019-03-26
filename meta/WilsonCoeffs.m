@@ -22,7 +22,7 @@
 
 BeginPackage["WilsonCoeffs`",{"Utils`"}];
 
-MatchingConditions::usage="Extracts the coefficients for a given basis and amplitude from NPointFunctions.";
+matchingConditions::usage="Extracts the coefficients for a given basis and amplitude from NPointFunctions.";
 FindFermionChains::usage="Searches the FermionChains in the abbreviations rules";
 RemoveFermionChains::usage="Removes FermionChains from the abbreviations rules.";
 
@@ -53,7 +53,7 @@ RemoveFermionChains[npointExpression_List] :=
     Delete[npointExpression, pos]
   ]
 
-MatchingConditions[npointExpression_List, chiralBasis_List] :=
+matchingConditions[npointExpression_List, chiralBasis_List] :=
   Module[{Coeffs, mappedNPoint=npointExpression},
     Coeffs = ExtractCoeffs[#, chiralBasis]& /@ npointExpression[[2, 1, 1]];
     mappedNPoint[[2, 1, 1]] = Coeffs;
