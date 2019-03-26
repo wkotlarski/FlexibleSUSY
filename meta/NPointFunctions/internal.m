@@ -450,7 +450,7 @@ subexpressionToFSRules = {};
 SetFSConventionRules[] :=
   Module[{lines, indexRules, field, ltIndex,
           fieldsHandle, fieldContents, fieldNames, massRules,
-          fieldNamespaces, couplingRules, generalFCRules, fieldType},
+          fieldNamespaces, couplingRules, generalFCRules, fieldType, diracChainRules},
     lines = Utils`ReadLinesInFile[particleNamesFile];
 
     fieldNames = Cases[lines,
@@ -560,11 +560,15 @@ SetFSConventionRules[] :=
       indexRules
     ];
 
+    (*These symbols cause an overshadowing with Susyno`LieGroups*)
+    diracChainRules = (Symbol["F" <> ToString[#]] :> Unique[diracChain] & /@ Range[Length[fieldNames]]);
+
     subexpressionToFSRules = Join[
       massRules,
       fieldNameToFSRules,
       couplingRules,
-      generalFCRules
+      generalFCRules,
+      diracChainRules
     ];
     amplitudeToFSRules = Join[
       subexpressionToFSRules,
