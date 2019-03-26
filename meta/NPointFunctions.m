@@ -894,9 +894,13 @@ not a number: " <> ToString[#]] & /@ colourFactors;
         Transpose[{ReRatioColourFactors, ImRatioColourFactors}], {"{" -> "", "}" -> ""}],
       ", "]] <> "\n>;\n\n" <>
 
-    "return accumulate_generic<GenericKeys, GenericInsertions,\n" <> 
-      "combinatorial_factors, colour_factors, " <> functionName <> 
-    "_impl>( *this );\n}"
+    If[Length[FermionBasis] =!= 0,
+      "using wilsoncoeffs_length = boost::mpl::int_<" <> ToString[Length[FermionBasis]]  <> ">;" <>
+      "return accumulate_generic<GenericKeys, GenericInsertions,\n" <>
+        "combinatorial_factors, colour_factors, wilsoncoeffs_length, ",
+      "return accumulate_generic<GenericKeys, GenericInsertions,\n" <>
+        "combinatorial_factors, colour_factors, "]
+      <> functionName <> "_impl>( *this );\n}"
   ]
 
 (** \brief Return a list of the open field indices for a given
