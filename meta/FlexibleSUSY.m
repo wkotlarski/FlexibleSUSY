@@ -4423,7 +4423,6 @@ MakeFlexibleSUSY[OptionsPattern[]] :=
                ];
 
             (* internally the F -> F conversion routines require form factors with massive vector bosons *)
-           (*
             fieldsForFToFMassiveVFormFactors = {};
             If[LToLConversionFields =!= {},
                fieldsForFToFMassiveVFormFactors =
@@ -4443,7 +4442,6 @@ MakeFlexibleSUSY[OptionsPattern[]] :=
                             {FileNameJoin[{$flexiblesusyTemplateDir, "FFMassiveV_form_factors.cpp.in"}],
                              FileNameJoin[{FSOutputDir, FlexibleSUSY`FSModelName <> "_FFMassiveV_form_factors.cpp"}]}}
                ];
-               *)
 
            Print["Creating AMuon class ..."];
            aMuonVertices = 
