@@ -79,6 +79,8 @@ matchingConditions[npointExpression_List, chiralBasis_List] :=
  **)
 InterfaceToMatching[GenericSumAmp_List, operatorBasis_List]:=
   Module[{findBasis, coefficientsWilson},
+    Utils`AssertWithMessage[GenericSumAmp =!= {} && operatorBasis =!= {},
+        "WilsonCoeffs`InterfaceToMatching[]: Input can not be an empty list."];
     findBasis = FindFermionChains[GenericSumAmp[[2, 2]], operatorBasis];
     coefficientsWilson = RemoveFermionChains[matchingConditions[GenericSumAmp, findBasis[[All, 2]]]];
 
