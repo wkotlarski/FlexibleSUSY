@@ -141,7 +141,7 @@ NPointFunctionFAFC[inFields_List,outFields_List,
       regularizationScheme === DimensionalRegularization,
 			"NPointFunctions`NPointFunctionFAFC[]: Unknown regularization scheme: " <>
 			ToString[regularizationScheme]];
-    Utils`AssertWithMessage[zeroExternalMomenta === True || zeroExternalMomenta === False,
+    Utils`AssertWithMessage[BooleanQ[zeroExternalMomenta],
 			"NPointFunctions`NPointFunctionFAFC[]: Option ZeroExternalMomenta must \
 be either True or False"];
 
@@ -151,9 +151,9 @@ be either True or False"];
         "NPointFunctions`NPointFunctionFAFC[]: Option ExcludedTopologies: "
         <> ToString[OptionValue[ExcludedTopologies]] <> " is not valid."];
     excludedTopologies = OptionValue[ExcludedTopologies] /. toFeynArtsTopologies;
-    Utils`AssertWithMessage[onShellFlag === True || onShellFlag === False,
+    Utils`AssertWithMessage[BooleanQ[onShellFlag],
         "NPointFunctions`NPointFunctionFAFC[]: Option OnShellFlag must be either \
-        True or False."];
+True or False."];
 
     If[DirectoryQ[formCalcDir] === False,
        CreateDirectory[formCalcDir]];

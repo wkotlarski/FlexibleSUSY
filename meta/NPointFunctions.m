@@ -157,7 +157,7 @@ NPointFunction[inFields_List,outFields_List,
 			ToString[regularizationScheme]];
 		
     zeroExternalMomenta = OptionValue[ZeroExternalMomenta];
-    Utils`AssertWithMessage[zeroExternalMomenta === True || zeroExternalMomenta === False,
+    Utils`AssertWithMessage[BooleanQ[zeroExternalMomenta],
 			"NPointFunctions`NPointFunction[]: Option ZeroExternalMomenta must \
 be either True or False"];
 
@@ -169,9 +169,9 @@ be either True or False"];
     excludedTopologies = OptionValue[ExcludedTopologies];
 
     onShellFlag = OptionValue[OnShellFlag];
-    Utils`AssertWithMessage[onShellFlag === True || onShellFlag === False,
+    Utils`AssertWithMessage[BooleanQ[onShellFlag],
         "NPointFunctions`NPointFunction[]: Option OnShellFlag must be either \
-        True or False."];
+True or False."];
 
     Utils`AssertWithMessage[And @@
 			TreeMasses`IsScalar /@ Join[inFields, outFields] ||
