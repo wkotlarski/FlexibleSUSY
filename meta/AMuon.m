@@ -61,7 +61,7 @@ AMuonContributingDiagramsForGraph[graph_] :=
     Select[diagrams,IsDiagramSupported[graph,#] &]
  ]
 
-IsDiagramSupported[barZeeGraph,diagram_] :=
+IsDiagramSupported[barZeeGraph, diagram_] :=
   Module[{photonEmitter,exchangeParticle1,exchangeParticle2},
 
     photonEmitter = diagram[[8,3]];
@@ -81,7 +81,7 @@ IsDiagramSupported[barZeeGraph,diagram_] :=
     Return[False];
   ];
 
-CXXEvaluatorForDiagramFromGraph[diagram_, barZeeGraph_] := 
+CXXEvaluatorForDiagramFromGraph[diagram_, barZeeGraph] :=
   Module[{photonEmitter,exchangeParticle1,exchangeParticle2},
 
     photonEmitter = diagram[[8,3]];
@@ -102,22 +102,22 @@ CXXEvaluatorForDiagramFromGraph[diagram_, barZeeGraph_] :=
   ];
 
 CXXEvaluatorBZFL[photonEmitter_,exchangeParticle_] :=
-  "valBarZee += AMuonBarZeeFermionLoop<" <> 
+  "AMuonBarZeeFermionLoop<" <>
   CXXDiagrams`CXXNameOfField[photonEmitter] <> ", " <>
   CXXDiagrams`CXXNameOfField[exchangeParticle] <> ">";
 
 CXXEvaluatorBZFLZ[photonEmitter_,exchangeParticle_] :=
-  "valBarZee += AMuonBarZeeFermionLoopZ<" <> 
+  "AMuonBarZeeFermionLoopZ<" <>
   CXXDiagrams`CXXNameOfField[photonEmitter] <> ", " <>
   CXXDiagrams`CXXNameOfField[exchangeParticle] <> ">";
 
 CXXEvaluatorBZSL[photonEmitter_,exchangeParticle_] :=
-  "valBarZee += AMuonBarZeeScalarLoop<" <> 
+  "AMuonBarZeeScalarLoop<" <>
   CXXDiagrams`CXXNameOfField[photonEmitter] <> ", " <>
   CXXDiagrams`CXXNameOfField[exchangeParticle] <> ">";
 
 CXXEvaluatorBZVL[photonEmitter_,exchangeParticle_] :=
-  "valBarZee += AMuonBarZeeVectorLoop<" <> 
+  "AMuonBarZeeVectorLoop<" <>
   CXXDiagrams`CXXNameOfField[photonEmitter] <> ", " <>
   CXXDiagrams`CXXNameOfField[exchangeParticle] <> ">";
 

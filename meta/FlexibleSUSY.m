@@ -2223,7 +2223,7 @@ WriteAMuonClass[calcAMu_, files_List] :=
             muonIndex = If[TreeMasses`GetDimension[AMuon`AMuonGetMuon[]] =!= 1, "1", ""],
             (* we want to calculate an offset of g-2 compared to the SM *)
             discardSMcontributions = CXXDiagrams`CXXBoolValue[True],
-            graphs, diagrams, vertices, barZee},
+            graphs, diagrams, vertices, barZee = ""},
 
       calculation =
          If[calcAMu,
@@ -2239,17 +2239,22 @@ WriteAMuonClass[calcAMu_, files_List] :=
       getMSUSY = AMuon`AMuonGetMSUSY[];
 
       graphs = AMuon`AMuonContributingGraphs[];
-      diagrams = AMuon`AMuonContributingDiagramsForGraph /@ graphs;
-      
-      vertices = Flatten[CXXDiagrams`VerticesForDiagram /@ Flatten[diagrams,1],1];
+      diagrams = Outer[AMuon`AMuonContributingDiagramsForGraph, graphs, 1];
 
+      vertices = Flatten[CXXDiagrams`VerticesForDiagram /@ Flatten[diagrams, 1], 1];
 
-      barZee = StringJoin @ Riffle[
-      (ToString @ # <> "::value({1}, context, qedqcd);") & /@ 
-      (
-AMuon`CXXEvaluatorForDiagramFromGraph[#, graphs[[1]]]& /@ diagrams[[1]]
-         ),                                 
-      "\n"];
+      For[i = 1, i <= Length[graphs], i++,
+         For[j = 1, j <= Length[diagrams[[i]]], j++,
+            barZee = barZee <>
+               "valBarZee += std::complex<double> " <> ToString @ N[
+                  Utils`FSReIm @ CXXDiagrams`ColourFactorForIndexedDiagramFromGraph[
+               CXXDiagrams`IndexDiagramFromGraph[diagrams[[i,j]], graphs[[i]]],
+                  graphs[[i]]
+                ], 16] <> " * " <>
+                ToString @ AMuon`CXXEvaluatorForDiagramFromGraph[diagrams[[i,j]], graphs[[i]]] <>
+                "::value({" <> muonIndex <> "}, context, qedqcd);\n"
+         ];
+      ];
 
       WriteOut`ReplaceInFiles[files,
         {"@AMuon_MuonField@"      -> CXXDiagrams`CXXNameOfField[AMuon`AMuonGetMuon[]],
@@ -2262,7 +2267,6 @@ AMuon`CXXEvaluatorForDiagramFromGraph[#, graphs[[1]]]& /@ diagrams[[1]]
         }];
 
         vertices
-
       ];
 
 GetBVPSolverHeaderName[solver_] :=
