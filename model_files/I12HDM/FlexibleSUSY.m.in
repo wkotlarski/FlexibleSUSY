@@ -1,0 +1,86 @@
+
+FSModelName = "@CLASSNAME@";
+FSEigenstates = SARAH`EWSB;
+FSDefaultSARAHModel = "I12HDM";
+
+OnlyLowEnergyFlexibleSUSY = True;
+
+(* input parameters *)
+
+MINPAR = {
+    {1, Lambda11IN},
+    {2, Lambda22IN},
+    {3, Lambda33IN},
+    {4, Lambda12IN},
+    {5, Lambda23IN},
+    {6, Lambda31IN},
+    {7, LambdaP12IN},
+    {8, LambdaP23IN},
+    {9, LambdaP31IN},
+    {10, Lambda1IN},
+    {11, Lambda2IN},
+    {12, Lambda3IN},
+    {13, M122IN},
+    {14, M32IN},
+    {15, TanBeta}
+};
+
+EXTPAR = {
+    {0, Qin}
+};
+
+EWSBOutputParameters = {M12, M22};
+
+SUSYScale = Qin;
+
+SUSYScaleFirstGuess = Qin;
+
+SUSYScaleInput = {
+    {Lambda1, Lambda1IN},
+    {Lambda2, Lambda2IN},
+    {Lambda3, Lambda3IN},
+    {Lambda11, Lambda11IN},
+    {Lambda22, Lambda22IN},
+    {Lambda33, Lambda33IN},
+    {Lambda12, Lambda12IN},
+    {Lambda23, Lambda23IN},
+    {Lambda31, Lambda31IN},
+    {LambdaP12, LambdaP12IN},
+    {LambdaP23, LambdaP23IN},
+    {LambdaP31, LambdaP31IN},
+    {M122   , M122IN},
+    {M32   , M32IN}
+};
+
+LowScale = LowEnergyConstant[MZ];
+
+LowScaleFirstGuess = LowEnergyConstant[MZ];
+
+LowScaleInput = {
+   {v1, 2 MZMSbar / Sqrt[GUTNormalization[g1]^2 g1^2 + g2^2] Cos[ArcTan[TanBeta]]},
+   {v2, 2 MZMSbar / Sqrt[GUTNormalization[g1]^2 g1^2 + g2^2] Sin[ArcTan[TanBeta]]},
+   {Yu, Automatic},
+   {Yd, Automatic},
+   {Ye, Automatic}
+};
+
+InitialGuessAtLowScale = {
+   {v1, LowEnergyConstant[vev] Cos[ArcTan[TanBeta]]},
+   {v2, LowEnergyConstant[vev] Sin[ArcTan[TanBeta]]},
+   {Yu, Automatic},
+   {Yd, Automatic},
+   {Ye, Automatic}
+};
+
+DefaultPoleMassPrecision = MediumPrecision;
+HighPoleMassPrecision    = {hh, Ah, Hpm};
+MediumPoleMassPrecision  = {};
+LowPoleMassPrecision     = {};
+
+ExtraSLHAOutputBlocks = {
+   {EFFHIGGSCOUPLINGS, NoScale,
+           {{1, FlexibleSUSYObservable`CpHiggsPhotonPhoton},
+            {2, FlexibleSUSYObservable`CpHiggsGluonGluon},
+            {3, FlexibleSUSYObservable`CpPseudoScalarPhotonPhoton},
+            {4, FlexibleSUSYObservable`CpPseudoScalarGluonGluon} } }
+};
