@@ -189,6 +189,8 @@ UseSM3LoopRGEs = False;
 UseSM4LoopRGEs = False;
 UseSM5LoopRGEs = False;
 UseSMAlphaS3Loop = False;
+UseSMAlphaS4Loop = False;
+UseSMYukawa2Loop = False;
 UseMSSM3LoopRGEs = False;
 UseMSSMYukawa2Loop = False;
 UseMSSMAlphaS2Loop = False;
@@ -704,6 +706,9 @@ GeneralReplacementRules[] :=
     { "@UpYukawa@"       -> CConversion`ToValidCSymbolString[SARAH`UpYukawa],
       "@DownYukawa@"     -> CConversion`ToValidCSymbolString[SARAH`DownYukawa],
       "@ElectronYukawa@" -> CConversion`ToValidCSymbolString[SARAH`ElectronYukawa],
+      "@TrilinearUp@"          -> CConversion`ToValidCSymbolString[SARAH`TrilinearUp],
+      "@TrilinearDown@"        -> CConversion`ToValidCSymbolString[SARAH`TrilinearDown],
+      "@TrilinearLepton@"      -> CConversion`ToValidCSymbolString[SARAH`TrilinearLepton],
       "@LeftUpMixingMatrix@"   -> CConversion`ToValidCSymbolString[SARAH`UpMatrixL],
       "@LeftDownMixingMatrix@" -> CConversion`ToValidCSymbolString[SARAH`DownMatrixL],
       "@RightUpMixingMatrix@"  -> CConversion`ToValidCSymbolString[SARAH`UpMatrixR],
@@ -773,7 +778,7 @@ WriteRGEClass[betaFun_List, anomDim_List, files_List,
           display              = BetaFunction`CreateDisplayFunction[betaFun, numberOfBaseClassParameters];
           cCtorParameterList   = BetaFunction`CreateCCtorParameterList[betaFun];
           parameterCopyInit    = BetaFunction`CreateCCtorInitialization[betaFun];
-          betaParameterList    = BetaFunction`CreateParameterList[betaFun, "beta_"];
+          betaParameterList    = BetaFunction`FSCreateParameterList[betaFun, "beta_"];
           clearParameters      = BetaFunction`ClearParameters[betaFun];
           anomDimPrototypes    = AnomalousDimension`CreateAnomDimPrototypes[anomDim];
           anomDimFunctions     = AnomalousDimension`CreateAnomDimFunctions[anomDim];
@@ -1686,8 +1691,8 @@ WriteModelClass[massMatrices_List, ewsbEquations_List,
            setExtraParameters           = Parameters`CreateExtraParameterArraySetter[Parameters`GetExtraParameters[]];
            mixingMatrices               = Flatten[TreeMasses`GetMixingMatrixSymbol[#]& /@ massMatrices];
            printMixingMatrices          = WriteOut`PrintParameters[mixingMatrices, "ostr"];
-           dependencePrototypes      = TreeMasses`CreateDependencePrototypes[massMatrices];
-           dependenceFunctions       = TreeMasses`CreateDependenceFunctions[massMatrices];
+           dependencePrototypes         = TreeMasses`CreateDependencePrototypes[];
+           dependenceFunctions          = TreeMasses`CreateDependenceFunctions[];
            If[Head[SARAH`ListSoftBreakingScalarMasses] === List,
               softScalarMasses          = DeleteDuplicates[SARAH`ListSoftBreakingScalarMasses];,
               softScalarMasses          = {};
@@ -1996,59 +2001,63 @@ WriteObservables[extraSLHAOutputBlocks_, files_List] :=
 WriteCXXDiagramClass[vertices_List, files_List,
     cxxQFTVerticesTemplate_, cxxQFTVerticesOutputDirectory_,
     cxxQFTVerticesMakefileTemplates_] :=
-  Module[{fields, cxxVerticesParts, massFunctions, unitCharge,
-          sarahOutputDir = SARAH`$sarahCurrentOutputMainDir,
-          outputDir, cxxDiagramsDir, createdVerticesFile, fileHandle,
-          cxxQFTVerticesFiles},
-    fields = CXXDiagrams`CreateFields[];
-    cxxVerticesParts = CXXDiagrams`CreateVertices[vertices];
-    massFunctions = CXXDiagrams`CreateMassFunctions[];
-    unitCharge = CXXDiagrams`CreateUnitCharge[];
-    
-    cxxVerticesParts[[1, 2]] = cxxVerticesParts[[1, 2]] <> "\n\n" <>
-      unitCharge;
-    
-    (* Document which vertices are created. This is mainly useful for
-       unit testing. See e.g test/test_MSSM_npointfunctions.m *)
-    outputDir = FileNameJoin[{sarahOutputDir, ToString[FlexibleSUSY`FSEigenstates]}];
-    cxxDiagramsDir = FileNameJoin[{outputDir, "CXXDiagrams"}];
-    createdVerticesFile = FileNameJoin[{cxxDiagramsDir, "CreatedVertices.m"}];
-    
-    If[DirectoryQ[cxxDiagramsDir] === False,
-		   CreateDirectory[cxxDiagramsDir]];
-    
-    (* There is a bug in WriteString[] in older Mathematica versions
-       that causes the files to be left open. *)
-    fileHandle = OpenWrite[createdVerticesFile];
-    Write[fileHandle, vertices];
-    Close[fileHandle];
+    Module[{fields = "", cxxVerticesParts = {}, massFunctions, unitCharge,
+            sarahOutputDir = SARAH`$sarahCurrentOutputMainDir,
+            outputDir, cxxDiagramsDir, createdVerticesFile, fileHandle,
+            cxxQFTVerticesFiles},
 
-    WriteOut`ReplaceInFiles[files,
+        massFunctions = CXXDiagrams`CreateMassFunctions[];
+        fields = CXXDiagrams`CreateFields[];
+
+        If[vertices =!= {},
+
+            cxxVerticesParts = CXXDiagrams`CreateVertices[vertices];
+    
+            (* Document which vertices are created. This is mainly useful for
+               unit testing. See e.g test/test_MSSM_npointfunctions.m *)
+            outputDir = FileNameJoin[{sarahOutputDir, ToString[FlexibleSUSY`FSEigenstates]}];
+            cxxDiagramsDir = FileNameJoin[{outputDir, "CXXDiagrams"}];
+            createdVerticesFile = FileNameJoin[{cxxDiagramsDir, "CreatedVertices.m"}];
+    
+            If[DirectoryQ[cxxDiagramsDir] === False,
+                CreateDirectory[cxxDiagramsDir]];
+    
+            (* There is a bug in WriteString[] in older Mathematica versions
+               that causes the files to be left open. *)
+            fileHandle = OpenWrite[createdVerticesFile];
+            Write[fileHandle, vertices];
+            Close[fileHandle];
+        ];
+
+        unitCharge = CXXDiagrams`CreateUnitCharge[];
+        AppendTo[cxxVerticesParts, {"", CXXDiagrams`CreateUnitCharge[]}];
+
+        WriteOut`ReplaceInFiles[files,
                             {"@CXXDiagrams_Fields@"            -> fields,
                              "@CXXDiagrams_MassFunctions@"     -> massFunctions,
                              "@CXXDiagrams_VertexPrototypes@"  ->
-                               StringJoin[Riffle[cxxVerticesParts[[All, 1]], "\n\n"]],
+                                StringJoin[Riffle[cxxVerticesParts[[All, 1]], "\n\n"]],
                              Sequence @@ GeneralReplacementRules[]
                             }];
-    
-    cxxQFTVerticesFiles = Table[
-        {cxxQFTVerticesTemplate,
-		   FileNameJoin[{cxxQFTVerticesOutputDirectory,
+
+        cxxQFTVerticesFiles = Table[
+            {cxxQFTVerticesTemplate,
+		      FileNameJoin[{cxxQFTVerticesOutputDirectory,
 			   FSModelName <> "_" <> FileNameTake[StringReplace[cxxQFTVerticesTemplate,
 			     {".cpp.in" -> ToString[k] <> ".cpp"}]]}]
-			},
-		  {k, Length[cxxVerticesParts]}];
+			   },
+		      {k, Length[cxxVerticesParts]}];
 	
-    WriteOut`ReplaceInFiles[{#[[1]]},
-      {"@CXXDiagrams_VertexDefinitions@" -> #[[2, 2]],
-       Sequence @@ GeneralReplacementRules[]
-      }] & /@ Transpose[{cxxQFTVerticesFiles, cxxVerticesParts}];
-    WriteOut`ReplaceInFiles[cxxQFTVerticesMakefileTemplates,
-      {"@generatedCXXVerticesFiles@" ->
-         "\t" <> StringJoin[Riffle[cxxQFTVerticesFiles[[All, 2]], " \\\n\t"]],
-       Sequence @@ GeneralReplacementRules[]
-      }];
- ]
+        WriteOut`ReplaceInFiles[{#[[1]]},
+            {"@CXXDiagrams_VertexDefinitions@" -> #[[2, 2]],
+            Sequence @@ GeneralReplacementRules[]
+            }] & /@ Transpose[{cxxQFTVerticesFiles, cxxVerticesParts}];
+        WriteOut`ReplaceInFiles[cxxQFTVerticesMakefileTemplates,
+            {"@generatedCXXVerticesFiles@" ->
+                "\t" <> StringJoin[Riffle[cxxQFTVerticesFiles[[All, 2]], " \\\n\t"]],
+            Sequence @@ GeneralReplacementRules[]
+            }];
+    ];
 
 (* Write the EDM c++ files *)
 WriteEDMClass[edmFields_List,files_List] :=
@@ -2104,9 +2113,6 @@ WriteFFVFormFactorsClass[extParticles_List, files_List] :=
       WriteOut`ReplaceInFiles[files,
          {"@FFVFormFactors_InterfacePrototypes@"   -> interfacePrototypes,
           "@FFVFormFactors_InterfaceDefinitions@"  -> interfaceDefinitions,
-          "@FFVFormFactors_ChargedHiggsMultiplet@" -> CXXDiagrams`CXXNameOfField[SARAH`ChargedHiggs],
-          "@FFVFormFactors_GluonName@" -> CXXDiagrams`CXXNameOfField[TreeMasses`GetGluon[]],
-          "@FFVFormFactors_PhotonName@" -> CXXDiagrams`CXXNameOfField[TreeMasses`GetPhoton[]],
           Sequence @@ GeneralReplacementRules[]}
       ];
 
@@ -2216,27 +2222,35 @@ WriteFToFConversionInNucleusClass[leptonPairs_List, files_List] :=
    ];
 
 (* Write the AMuon c++ files *)
-WriteAMuonClass[files_List] :=
-    Module[{graphs,diagrams,vertices,
-            calculation,
-            getMSUSY},
-      graphs = AMuon`AMuonContributingGraphs[];
-      diagrams = AMuon`AMuonContributingDiagramsForGraph /@ graphs;
-      
-      vertices = Flatten[CXXDiagrams`VerticesForDiagram /@ Flatten[diagrams,1],1];
-      
-      calculation = AMuon`AMuonCreateCalculation @ Transpose[{graphs,diagrams}];
+WriteAMuonClass[calcAMu_, files_List] :=
+    Module[{calculation, getMSUSY,
+            (* in models without flavour violation (no FV models) muon does not have an index,
+               otherwise we assume it's the second particle in the lepton multiplet *)
+            muonIndex = If[TreeMasses`GetDimension[AMuon`AMuonGetMuon[]] =!= 1, "1", ""],
+            (* we want to calculate an offset of g-2 compared to the SM *)
+            discardSMcontributions = CXXDiagrams`CXXBoolValue[True]},
+
+      calculation =
+         If[calcAMu,
+            "const auto form_factors = " <>
+            FSModelName <> "_FFV_form_factors::calculate_" <> CXXDiagrams`CXXNameOfField[AMuon`AMuonGetMuon[]] <> "_" <>
+            CXXDiagrams`CXXNameOfField[AMuon`AMuonGetMuon[]] <> "_" <> CXXDiagrams`CXXNameOfField[TreeMasses`GetPhoton[]] <> "_form_factors(" <>
+            muonIndex <> If[muonIndex === "", "", ", "] <>
+            muonIndex <> If[muonIndex === "", "", ", "] <>
+            "model, " <> discardSMcontributions <> ");",
+            "const std::valarray<std::complex<double>> form_factors {0., 0., 0., 0.};"
+         ];
             
       getMSUSY = AMuon`AMuonGetMSUSY[];
-      
+
       WriteOut`ReplaceInFiles[files,
         {"@AMuon_MuonField@"      -> CXXDiagrams`CXXNameOfField[AMuon`AMuonGetMuon[]],
          "@AMuon_Calculation@"    -> TextFormatting`IndentText[calculation],
-         "@AMuon_GetMSUSY@"       -> IndentText[WrapLines[getMSUSY]],
+         "@AMuon_GetMSUSY@"       -> TextFormatting`IndentText[WrapLines[getMSUSY]],
+         "@AMuon_MuonIndex@" -> muonIndex,
          Sequence @@ GeneralReplacementRules[]
         }];
-                              
-      vertices
+
       ];
 
 GetBVPSolverHeaderName[solver_] :=
@@ -2760,6 +2774,7 @@ FSCheckFlags[] :=
            If[FlexibleSUSY`UseHiggs3LoopSM === True,
               FlexibleSUSY`UseHiggs2LoopSM = True;
               FlexibleSUSY`UseSMAlphaS3Loop = True;
+              (* FlexibleSUSY`UseSMYukawa2Loop = True; *)
               FlexibleSUSY`UseYukawa3LoopQCD = True;
               FlexibleSUSY`UseSM3LoopRGEs = True;
              ];
@@ -2768,14 +2783,19 @@ FSCheckFlags[] :=
               FlexibleSUSY`UseHiggs2LoopSM = True;
               FlexibleSUSY`UseHiggs3LoopSM = True;
               FlexibleSUSY`UseSMAlphaS3Loop = True;
+              FlexibleSUSY`UseSMAlphaS4Loop = True;
+              (* FlexibleSUSY`UseSMYukawa2Loop = True; *)
               FlexibleSUSY`UseYukawa3LoopQCD = True;
+              FlexibleSUSY`UseYukawa4LoopQCD = True;
               FlexibleSUSY`UseSM3LoopRGEs = True;
               FlexibleSUSY`UseSM4LoopRGEs = True;
+              FlexibleSUSY`UseSM5LoopRGEs = True;
              ];
 
            If[FlexibleSUSY`UseYukawa4LoopQCD === True,
               FlexibleSUSY`UseYukawa3LoopQCD = True;
               FlexibleSUSY`UseSMAlphaS3Loop = True;
+              FlexibleSUSY`UseSMAlphaS4Loop = True;
               FlexibleSUSY`UseSM3LoopRGEs = True;
               FlexibleSUSY`UseSM4LoopRGEs = True;
              ];
@@ -2791,7 +2811,10 @@ FSCheckFlags[] :=
               References`AddReference["Melnikov:2000qh"];
              ];
 
-           If[FlexibleSUSY`UseYukawa4LoopQCD || FlexibleSUSY`FlexibleEFTHiggs,
+           If[FlexibleSUSY`UseSMYukawa2Loop || FlexibleSUSY`UseYukawa4LoopQCD ||
+              FlexibleSUSY`FlexibleEFTHiggs,
+              Print["Adding 2-loop SM O(as^2,at*as,at^2) corrections to yt from ",
+                    "[arXiv:1604.01134]"];
               Print["Adding 4-loop SM QCD corrections to yt from ",
                     "[arxiv:1604.01134]"];
               References`AddReference["Martin:2016xsp"];
@@ -2799,8 +2822,14 @@ FSCheckFlags[] :=
 
            If[FlexibleSUSY`UseSMAlphaS3Loop || FlexibleSUSY`FlexibleEFTHiggs,
               Print["Adding 3-loop SM QCD threshold corrections to alpha_s ",
-                    "[arxiv:hep-ph/0004189]"];
-              References`AddReference["Chetyrkin:2000yt"];
+                    "[arxiv:hep-ph/9708255]"];
+              References`AddReference["Chetyrkin:1997un"];
+             ];
+
+           If[FlexibleSUSY`UseSMAlphaS4Loop || FlexibleSUSY`FlexibleEFTHiggs,
+              Print["Adding 4-loop SM QCD threshold corrections to alpha_s ",
+                    "[arxiv:hep-ph/0512060]"];
+              References`AddReference["Chetyrkin:2005ia"];
              ];
 
            If[FlexibleSUSY`UseMSSMYukawa2Loop,
@@ -3570,7 +3599,7 @@ Options[MakeFlexibleSUSY] :=
 
 MakeFlexibleSUSY[OptionsPattern[]] :=
     Module[{nPointFunctions, runInputFile, initialGuesserInputFile,
-            edmVertices, aMuonVertices, edmFields,
+            edmVertices, edmFields,
             LToLGammaFields = {}, LToLConversionFields = {}, FFMasslessVVertices = {}, conversionVertices = {},
             fieldsForFToFMassiveVFormFactors = {}, fFFMassiveVFormFactorVertices = {},
             cxxQFTTemplateDir, cxxQFTOutputDir, cxxQFTFiles,
@@ -4444,8 +4473,8 @@ MakeFlexibleSUSY[OptionsPattern[]] :=
                ];
 
            Print["Creating AMuon class ..."];
-           aMuonVertices = 
-             WriteAMuonClass[{{FileNameJoin[{$flexiblesusyTemplateDir, "a_muon.hpp.in"}],
+           WriteAMuonClass[MemberQ[Observables`GetRequestedObservables[extraSLHAOutputBlocks], FlexibleSUSYObservable`aMuon],
+              {{FileNameJoin[{$flexiblesusyTemplateDir, "a_muon.hpp.in"}],
                                FileNameJoin[{FSOutputDir, FlexibleSUSY`FSModelName <> "_a_muon.hpp"}]},
                               {FileNameJoin[{$flexiblesusyTemplateDir, "a_muon.cpp.in"}],
                                FileNameJoin[{FSOutputDir, FlexibleSUSY`FSModelName <> "_a_muon.cpp"}]}}];
@@ -4469,11 +4498,13 @@ MakeFlexibleSUSY[OptionsPattern[]] :=
 
            If[DirectoryQ[cxxQFTOutputDir] === False,
               CreateDirectory[cxxQFTOutputDir]];
-           
-           WriteCXXDiagramClass[Join[edmVertices,aMuonVertices, FFMasslessVVertices, fFFMassiveVFormFactorVertices, conversionVertices
-], cxxQFTFiles,
-             cxxQFTVerticesTemplate, cxxQFTOutputDir,
-             cxxQFTVerticesMakefileTemplates];
+
+           WriteCXXDiagramClass[
+              Join[edmVertices, FFMasslessVVertices, fFFMassiveVFormFactorVertices, conversionVertices],
+              cxxQFTFiles,
+              cxxQFTVerticesTemplate, cxxQFTOutputDir,
+              cxxQFTVerticesMakefileTemplates
+           ];
 
            Utils`PrintHeadline["Creating Mathematica interface"];
            Print["Creating LibraryLink ", FileNameJoin[{FSOutputDir, FlexibleSUSY`FSModelName <> ".mx"}], " ..."];
