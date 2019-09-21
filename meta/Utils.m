@@ -20,7 +20,7 @@
 
 *)
 
-BeginPackage["Utils`"];
+BeginPackage["Utils`", {"TextFormatting`"}];
 
 AppendOrReplaceInList::usage="Replaces existing element in list,
 or appends it if not already present.";
@@ -191,6 +191,8 @@ as a list of Strings representing the lines in the file.
 Warning: This function may ignore empty lines.";
 
 FSReIm::usage = "FS replacement for the mathematica's function ReIm";
+PrintWarningMsg::usage = "";
+PrintErrorMsg::usage = "";
 
 Begin["`Private`"];
 
@@ -331,8 +333,10 @@ PrintHeadline[text__] :=
 
 PrintAndReturn[e___] := (Print[e]; e)
 
-AssertWithMessage[assertion_, message_String] :=
-	If[assertion =!= True, Print[message]; Quit[1]];
+AssertWithMessage[assertion_ /; Element[assertion, Booleans], message_String] :=
+	If[!assertion, PrintErrorMsg[message]; Quit[1]];
+AssertWithMessage[el___] :=
+    (PrintErrorMsg["AssertWithMessage requires Boolean and String."]; Quit[1]);
 
 AssertOrQuit::errNotDefined =
 "Error message \"`1`\" is not defined it the code.";
@@ -488,6 +492,42 @@ FSReIm[z_] := If[$VersionNumber >= 10.1,
    {Re[z], Im[z]}
 ];
 
-End[];
+StringInColorForTerminal[s_String, color_] :=
+   Switch[color,
+      Red, ToString["\\033[1;31m"] <> s <> ToString["\\033[1;0m"],
+      Blue, ToString["\\033[1;34m"] <> s <> ToString["\\033[1;0m"],
+      _, Print["Errror: Unrecognized color ", color];Quit[1]
+   ];
 
+PrintErrorMsg[s_String] :=
+   Print[
+      TextFormatting`WrapText[
+         StringInColorForTerminal["Error:", Red] <>
+            " " <> s, 79, StringLength["Error: "]
+      ]
+   ];
+PrintErrorMsg[arg___] :=
+    (PrintErrorMsg["PrintErrorMsg expects one argument of type string."];Quit[1]);
+
+PrintWarningMsg[s_String] :=
+   Print[
+      OutputForm@TextFormatting`WrapText[
+         StringInColorForTerminal["Warning:", Blue] <>
+            " " <> s, 79, StringLength["Warning: "]
+      ]
+   ];
+PrintWarningMsg[arg___] :=
+    (PrintErrorMsg["PrintWarningMsg expects one argument of type string."];Quit[1]);
+
+
+MathIndexToCPP[i_Integer /; i>0] := i-1;
+MathIndexToCPP[i_Integer] := (
+   PrintErrorMsg[
+      "Cannot convert index of value '" <>
+            ToString@i <> "'. Index value cannot be smaller than 1."
+   ]; Quit[1]
+);
+MathIndexToCPP[i_] := (PrintErrorMsg["Cannot convert a non integer index '" <> ToString@i <> "'"]; Quit[1]);
+
+End[];
 EndPackage[];

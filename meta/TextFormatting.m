@@ -30,6 +30,11 @@ IndentText::usage="indents text by a given number of spaces";
 
 Begin["`Private`"];
 
+RemoveColorTag[s_String] :=
+    StringReplace[s, {"\\033[1;31m" -> "", "\\033[1;34m" -> "", "\\033[1;0m" -> ""}];
+StringLengthWoColor[s_String] :=
+    StringLength@RemoveColorTag[s];
+
 WrapLines[text_String, maxWidth_:79, offset_:"   "] :=
     WrapText[text, maxWidth, StringLength[offset]];
 
@@ -87,7 +92,7 @@ NLeadingSpaces[line_String] := Module[{
 ProtectCTokens[line_String] :=
   DeleteCases[StringSplit[
       line,
-      s:RegularExpression["\".*?(?<!\\\\)\"|##|<:|:>|<%|%>|(%:){1,2}|[0-9]+\\.[0-9]*|[[:alnum:]_]+|\\.\\.\\.|::|\\.\\*|[-+*/%&|^]=|(<<|>>)=?|[=!<>]=|&&|\\|\\||\\+\\+|--|->\\*?"]
+      s:RegularExpression["\\\\\\d+\\[\\d\;\\d+[[:alpha:]]|\".*?(?<!\\\\)\"|##|<:|:>|<%|%>|(%:){1,2}|[0-9]+\\.[0-9]*|[[:alnum:]_]+|\\.\\.\\.|::|\\.\\*|[-+*/%&|^]=|(<<|>>)=?|[=!<>]=|&&|\\|\\||\\+\\+|--|->\\*?"]
       :> Hold[s]], ""];
 
 SplitLine[fstLen_Integer, strs_List] :=
