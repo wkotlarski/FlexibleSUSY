@@ -143,3 +143,4 @@ test                            export-ignore
 
 # reclassifies `.m` files as Mathematica
 *.m linguist-language=Mathematica
+
