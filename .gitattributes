@@ -145,4 +145,3 @@ test                            export-ignore
 *.m linguist-language=Wolfram-Language
 *.cpp.in linguist-language=C++
 *.hpp.in linguist-language=C++
-
