@@ -14,7 +14,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     container: 
-      image: navir/opensuseleap-for-flexiblesusy:latest
+      image: arnoudbuzing/wolframengine
       options: --name builder -t
     steps:
       - name: Copy Wolfram Engine license to the image
@@ -31,7 +31,6 @@ jobs:
           MATHPASS: ${{ secrets.MATHPASS }}
       - name: Test3
         run: |
-          wolframscript -auth $ID $PASS
           /usr/local/Wolfram/WolframEngine/12.0/Executables/math
         env:
           ID: ${{ secrets.ID }}
