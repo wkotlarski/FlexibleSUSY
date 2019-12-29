@@ -14,13 +14,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     container: 
-      image: navir/opensuseleap-for-flexiblesusy:0.1.5
+      image: opensuseleap-for-flexiblesusy:0.1.5
       options: -h 658654bb6239 -u root --name builder
     steps:
-      - name: Checkout 
-        uses: actions/checkout@v1
-        with:
-          fetch-depth: 1
       - name: Copy Wolfram Engine license to the image
         run: |
           mkdir $HOME/.WolframEngine
