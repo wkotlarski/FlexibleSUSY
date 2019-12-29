@@ -31,5 +31,8 @@ jobs:
           MATHPASS: ${{ secrets.MATHPASS }}
       - name: Test3
         run: |
-          wolframscript
+          wolframscript -auth $ID $PASS
           /usr/local/Wolfram/WolframEngine/12.0/Executables/math
+        env:
+          ID: ${{ secrets.ID }}
+          PASS: ${{ secrets.PASS }}
