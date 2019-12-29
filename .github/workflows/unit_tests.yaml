@@ -9,13 +9,13 @@ on:
     branches:
       - development
       - fix-action-on-pullrequest
-
+# 658654bb6239
 jobs:
   build:
     runs-on: ubuntu-latest
     container: 
       image: navir/opensuseleap-for-flexiblesusy:latest
-      options: -h 658654bb6239 -u root --name builder -t
+      options: --name builder -t
     steps:
       - name: Copy Wolfram Engine license to the image
         run: |
