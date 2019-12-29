@@ -18,8 +18,8 @@ jobs:
       options: -h 658654bb6239 -u root --name builder
     strategy:
       matrix:
-        CXXCOMPILER: [g++, clang++]
-        LOOPLIBRAY: [internal, looptools]
+        CXXCOMPILER: [g++]
+        LOOPLIBRAY: [internal]
     steps:
       - name: Checkout 
         uses: actions/checkout@v1
@@ -35,7 +35,6 @@ jobs:
           echo $MATHPASS > /root/.WolframEngine/Licensing/mathpass
           echo $MATHPASS > /usr/local/Wolfram/WolframEngine/12.0/Configuration/Licensing/mathpass
           ls -la /github/home
-          ls -la /home
           ls -la /root
           cat /etc/hostname
         env:
