@@ -16,10 +16,6 @@ jobs:
     container: 
       image: navir/opensuseleap-for-flexiblesusy:0.1.5
       options: -h 658654bb6239 -u root --name builder
-    strategy:
-      matrix:
-        CXXCOMPILER: [g++]
-        LOOPLIBRAY: [internal]
     steps:
       - name: Checkout 
         uses: actions/checkout@v1
@@ -34,8 +30,6 @@ jobs:
           mkdir /root/.WolframEngine/Licensing
           echo $MATHPASS > /root/.WolframEngine/Licensing/mathpass
           echo $MATHPASS > /usr/local/Wolfram/WolframEngine/12.0/Configuration/Licensing/mathpass
-          ls -la /github/home
-          ls -la /root
           cat /etc/hostname
         env:
           MATHPASS: ${{ secrets.MATHPASS }}
