@@ -30,4 +30,6 @@ jobs:
         env:
           MATHPASS: ${{ secrets.MATHPASS }}
       - name: Test3
-        run: /usr/local/Wolfram/WolframEngine/12.0/Executables/math
+        run: |
+          wolframscript
+          /usr/local/Wolfram/WolframEngine/12.0/Executables/math
