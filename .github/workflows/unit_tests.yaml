@@ -14,7 +14,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     container: 
-      image: arnoudbuzing/wolframengine
+      image: navir/opensuseleap-for-flexiblesusy
       options: --name builder -t
     steps:
       - name: Copy Wolfram Engine license to the image
