@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     container: 
       image: navir/opensuseleap-for-flexiblesusy
-      options: --name builder -u root -h kompek
+      options: -u root
     steps:
       - name: Copy Wolfram Engine license to the image
         run: |
@@ -25,7 +25,7 @@ jobs:
           echo $MATHPASS > /usr/local/Wolfram/WolframEngine/12.0/Configuration/Licensing/mathpass
           ls /root/.WolframEngine/Licensing
           ls $HOME/.WolframEngine/Licensing
-          /usr/local/Wolfram/WolframEngine/12.0/Executables/math
+          wolframscript -code 1+2
         env:
           MATHPASS: ${{ secrets.MATHPASS }}
 
