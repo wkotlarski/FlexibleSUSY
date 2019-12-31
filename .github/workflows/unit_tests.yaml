@@ -16,17 +16,16 @@ jobs:
     steps:
       - name: Copy Wolfram Engine license to the image
         run: |
-          mkdir $HOME/.WolframEngine
-          mkdir $HOME/.WolframEngine/Licensing
-          echo $MATHPASS > $HOME/.WolframEngine/Licensing/mathpass
-          mkdir /root/.WolframEngine
-          mkdir /root/.WolframEngine/Licensing
-          echo $MATHPASS > /root/.WolframEngine/Licensing/mathpass
+          mkdir $HOME/.cache
+          mkdir $HOME/.cache/Wolfram
+          mkdir $HOME/.cache/Wolfram/WolframScript
+          echo $MATHPASS > $HOME/.cache/Wolfram/WolframScript/mathpass
+          mkdir /root/.cache
+          mkdir /root/.cache/Wolfram
+          mkdir /root/.cache/Wolfram/WolframScript
+          echo $MATHPASS > /root/.cache/Wolfram/WolframScript/mathpass
           echo $MATHPASS > /usr/local/Wolfram/WolframEngine/12.0/Configuration/Licensing/mathpass
-          ls /root/.WolframEngine/Licensing
-          ls $HOME/.WolframEngine/Licensing
-          echo "A\nB\n" | WOLFRAMSCRIPT_AUTHENTICATIONPATH=/root/.WolframEngine/Licensing wolframscript -activate
+          wolframscript
         env:
           MATHPASS: ${{ secrets.MATHPASS }}
-          WOLFRAMSCRIPT_AUTHENTICATIONPATH: /root/.WolframEngine/Licensing
 
