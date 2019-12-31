@@ -23,13 +23,9 @@ jobs:
           mkdir /root/.WolframEngine/Licensing
           echo $MATHPASS > /root/.WolframEngine/Licensing/mathpass
           echo $MATHPASS > /usr/local/Wolfram/WolframEngine/12.0/Configuration/Licensing/mathpass
-          cat /etc/hostname
-        env:
-          MATHPASS: ${{ secrets.MATHPASS }}
-      - name: Test3
-        run: |
+          ls /root/.WolframEngine/Licensing
+          ls $HOME/.WolframEngine/Licensing
           /usr/local/Wolfram/WolframEngine/12.0/Executables/math
         env:
-          ID: ${{ secrets.ID }}
-          PASS: ${{ secrets.PASS }}
+          MATHPASS: ${{ secrets.MATHPASS }}
 
