@@ -25,7 +25,7 @@ jobs:
           echo $MATHPASS > /usr/local/Wolfram/WolframEngine/12.0/Configuration/Licensing/mathpass
           ls /root/.WolframEngine/Licensing
           ls $HOME/.WolframEngine/Licensing
-          WOLFRAMSCRIPT_AUTHENTICATIONPATH=/root/.WolframEngine/Licensing wolframscript -activate < A B
+          echo "A\nB\n" | WOLFRAMSCRIPT_AUTHENTICATIONPATH=/root/.WolframEngine/Licensing wolframscript -activate
         env:
           MATHPASS: ${{ secrets.MATHPASS }}
           WOLFRAMSCRIPT_AUTHENTICATIONPATH: /root/.WolframEngine/Licensing
