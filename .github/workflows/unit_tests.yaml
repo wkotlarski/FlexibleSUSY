@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     container: 
       image: navir/opensuseleap-for-flexiblesusy
-      options: -u root
+      options: -u root -h 658654bb6239
     steps:
       - name: Copy Wolfram Engine license to the image
         run: |
@@ -20,6 +20,9 @@ jobs:
           mkdir $HOME/.cache/Wolfram
           mkdir $HOME/.cache/Wolfram/WolframScript
           echo $MATHPASS > $HOME/.cache/Wolfram/WolframScript/mathpass
+          mkdir $HOME/.WolframEngine
+          mkdir $HOME/.WolframEngine/Licensing
+          echo $MATHPASS > $HOME/.WolframEngine/Licensing/mathpass
           mkdir /root/.cache
           mkdir /root/.cache/Wolfram
           mkdir /root/.cache/Wolfram/WolframScript
