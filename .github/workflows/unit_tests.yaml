@@ -17,6 +17,7 @@ jobs:
       - name: Copy Wolfram Engine license to the image
         run: |
           echo "bez Jaj"
+          su
           echo $USER
           echo $USERNAME
           echo "serio?"
