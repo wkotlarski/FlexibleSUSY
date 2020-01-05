@@ -4,6 +4,8 @@
 FlexibleSUSY
 ============
 
+.. image:: https://img.shields.io/github/license/wkotlarski/FlexibleSUSY
+
 .. image:: doc/images/FS-logo.png
    :align: right
 
