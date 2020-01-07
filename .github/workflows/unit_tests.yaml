@@ -27,7 +27,6 @@ jobs:
           mkdir $HOME/.WolframEngine
           mkdir $HOME/.WolframEngine/Licensing
           echo $MATHPASS > $HOME/.WolframEngine/Licensing/mathpass
-          mkdir /root/.cache
           mkdir /root/.cache/Wolfram
           mkdir /root/.cache/Wolfram/WolframScript
           echo $MATHPASS > /root/.cache/Wolfram/WolframScript/mathpass
