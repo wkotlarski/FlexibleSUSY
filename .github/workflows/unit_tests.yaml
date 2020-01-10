@@ -16,20 +16,9 @@ jobs:
     steps:
       - name: Copy Wolfram Engine license to the image
         run: |
-          echo "bez Jaj"
-          echo $USER
-          echo $USERNAME
-          echo "serio?"
-          mkdir $HOME/.cache
-          mkdir $HOME/.cache/Wolfram
-          mkdir $HOME/.cache/Wolfram/WolframScript
-          echo $MATHPASS > $HOME/.cache/Wolfram/WolframScript/mathpass
-          mkdir $HOME/.WolframEngine
-          mkdir $HOME/.WolframEngine/Licensing
-          echo $MATHPASS > $HOME/.WolframEngine/Licensing/mathpass
-          mkdir /root/.cache/Wolfram
-          mkdir /root/.cache/Wolfram/WolframScript
-          echo $MATHPASS > /root/.cache/Wolfram/WolframScript/mathpass
+          mkdir /root/.WolframEngine
+          mkdir /root/.WolframEngine/Licensing
+          echo $MATHPASS > /root/.WolframEngine/Licensing/mathpass
           echo $MATHPASS > /usr/local/Wolfram/WolframEngine/12.0/Configuration/Licensing/mathpass
           /usr/local/Wolfram/WolframEngine/12.0/Executables/math
         env:
