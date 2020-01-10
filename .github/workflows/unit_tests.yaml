@@ -34,3 +34,4 @@ jobs:
           /usr/local/Wolfram/WolframEngine/12.0/Executables/math
         env:
           MATHPASS: ${{ secrets.MATHPASS }}
+
