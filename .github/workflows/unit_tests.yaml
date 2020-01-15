@@ -12,7 +12,6 @@ jobs:
     runs-on: ubuntu-latest
     container: 
       image: docker://navir/opensuseleap-for-flexiblesusy
-      options: --hostname 2e42cd94edf7
     steps:
       - name: Copy Wolfram Engine license to the image
         run: |
