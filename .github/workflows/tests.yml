@@ -62,5 +62,6 @@ jobs:
           docker exec builder bash -c 'printf "Checking is Wolfram Engine workings... "; if [ $(wolframscript -code 1+2) -eq 3 ]; then echo OK; else echo fail && exit 1; fi'
         env:
           MATHPASS: ${{ secrets.MATHPASS }}
-          ref: ${{ github.event.pull_request.head.ref }}
+          ref: ${{ github.repository }}
+
 
