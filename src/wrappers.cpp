@@ -19,53 +19,13 @@
 #include "wrappers.hpp"
 #include "dilog.hpp"
 #include "numerics2.hpp"
+#include "string_format.hpp"
+#include "trilog.hpp"
+
+#include <complex>
+#include <cmath>
 
 namespace flexiblesusy {
-
-double AbsSqr(double z) noexcept
-{
-   return z * z;
-}
-
-double AbsSqr(const std::complex<double>& z) noexcept
-{
-   return std::norm(z);
-}
-
-double AbsSqrt(double x) noexcept
-{
-   return std::sqrt(std::fabs(x));
-}
-
-double ArcTan(double a) noexcept
-{
-   return std::atan(a);
-}
-
-double ArcSin(double a) noexcept
-{
-   return std::asin(a);
-}
-
-double ArcCos(double a) noexcept
-{
-   return std::acos(a);
-}
-
-double Arg(const std::complex<double>& z) noexcept
-{
-   return std::arg(z);
-}
-
-double Conj(double a) noexcept
-{
-   return a;
-}
-
-std::complex<double> Conj(const std::complex<double>& a) noexcept
-{
-   return std::conj(a);
-}
 
 double Tan(double a) noexcept
 {
@@ -109,13 +69,7 @@ bool IsClose(double a, double b, double eps) noexcept
 
 bool IsCloseRel(double a, double b, double eps) noexcept
 {
-   if (IsClose(a, b, std::numeric_limits<double>::epsilon()))
-      return true;
-
-   if (std::abs(a) < std::numeric_limits<double>::epsilon())
-      return IsClose(a, b, eps);
-
-   return std::abs((a - b)/a) < eps;
+   return is_equal_rel(a, b, eps);
 }
 
 bool IsFinite(double x) noexcept
@@ -164,44 +118,45 @@ double MaxAbsValue(const std::complex<double>& x) noexcept
    return Abs(x);
 }
 
-double MaxRelDiff(double a, double b)
+double MaxRelDiff(double a, double b) noexcept
 {
-   const double sTin = fabs(a);
-   const double sTout = fabs(b);
-   const double maxx = std::max(sTin, sTout);
-   const double underflow = 1.0e-20;
+   const double max = std::max(std::abs(a), std::abs(b));
 
-   if (maxx < underflow)
+   if (max < 1.0e-20) {
       return 0.0;
+   }
 
-   return std::abs((a - b) / maxx);
+   return std::abs((a - b) / max);
 }
 
-double MaxRelDiff(const std::complex<double>& a, const std::complex<double>& b)
+double MaxRelDiff(const std::complex<double>& a, const std::complex<double>& b) noexcept
 {
-   const double sTin = std::abs(a);
-   const double sTout = std::abs(b);
-   const double maxx = std::max(sTin, sTout);
-   const double underflow = 1.0e-20;
+   const double max = std::max(std::abs(a), std::abs(b));
 
-   if (maxx < underflow)
+   if (max < 1.0e-20) {
       return 0.0;
+   }
 
-   return std::abs(a - b) / maxx;
+   return std::abs((a - b) / max);
 }
 
-double PolyLog(int n, double z)
+double PolyLog(int n, double z) noexcept
 {
-   if (n == 2)
-      return dilog(z);
-   throw SetupError("PolyLog(n!=2) not implemented");
+   return std::real(PolyLog(n, std::complex<double>(z, 0.0)));
 }
 
-std::complex<double> PolyLog(int n, const std::complex<double>& z)
+std::complex<double> PolyLog(int n, const std::complex<double>& z) noexcept
 {
-   if (n == 2)
-      return dilog(z);
-   throw SetupError("PolyLog(n!=2) not implemented");
+   switch (n) {
+   case 1: return -std::log(1.0 - z);
+   case 2: return dilog(z);
+   case 3: return trilog(z);
+   default: break;
+   }
+
+   ERROR("PolyLog(n != 1|2|3) not implemented");
+
+   return { 0.0, 0.0 };
 }
 
 double Re(double x) noexcept
@@ -244,6 +199,26 @@ double SignedAbsSqrt(double a) noexcept
    return Sign(a) * AbsSqrt(a);
 }
 
+#define DEFINE_ToString(type)                   \
+   std::string ToString(type a)                 \
+   {                                            \
+      return flexiblesusy::to_string(a);        \
+   }
+
+DEFINE_ToString(char)
+DEFINE_ToString(unsigned char)
+DEFINE_ToString(unsigned short)
+DEFINE_ToString(unsigned int)
+DEFINE_ToString(unsigned long)
+DEFINE_ToString(unsigned long long)
+DEFINE_ToString(signed char)
+DEFINE_ToString(signed short)
+DEFINE_ToString(signed int)
+DEFINE_ToString(signed long)
+DEFINE_ToString(signed long long)
+DEFINE_ToString(double)
+DEFINE_ToString(const std::complex<double>&)
+
 double Total(double a) noexcept
 {
    return a;
@@ -255,7 +230,7 @@ std::complex<double> Total(const std::complex<double>& a) noexcept
 }
 
 /// unit vector of length N into direction i
-Eigen::VectorXd UnitVector(int N, int i)
+Eigen::VectorXd UnitVector(int N, int i) noexcept
 {
    Eigen::VectorXd v = Eigen::VectorXd::Zero(N);
    v(i) = 1;
@@ -264,7 +239,7 @@ Eigen::VectorXd UnitVector(int N, int i)
 }
 
 /// unit matrix projector of size MxN into direction i, j
-Eigen::MatrixXd MatrixProjector(int M, int N, int i, int j)
+Eigen::MatrixXd MatrixProjector(int M, int N, int i, int j) noexcept
 {
    Eigen::MatrixXd m = Eigen::MatrixXd::Zero(M,N);
    m(i,j) = 1;

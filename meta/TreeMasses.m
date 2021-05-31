@@ -52,6 +52,10 @@ CreateParticleMixingEnum::usage="creates enum with mixing matrices";
 CreateParticleMultiplicity::usage="creates array of the particle
 multiplicities";
 
+prefixNamespace::usage="";
+CreateFieldClassName::usage="creates the names of the class associated with
+the given field";
+
 FillSpectrumVector::usage="";
 
 CreateMixingMatrixGetter::usage="creates a getter for the mixing
@@ -78,6 +82,7 @@ matrix";
 ClearOutputParameters::usage="clears masses and mixing matrices";
 
 CopyDRBarMassesToPoleMasses::usage="copies DRbar mass to pole mass";
+CopyRunningMassesFromTo::usage="copies masses between two objects";
 
 CreateMassArrayGetter::usage="";
 CreateMassArraySetter::usage="";
@@ -201,6 +206,7 @@ GetSMUpQuarks::usage="";
 GetSMDownQuarks::usage="";
 GetSMQuarks::usage="";
 GetColoredParticles::usage="";
+GetColorRepresentation::usage="";
 
 GetUpQuark::usage="";
 GetDownQuark::usage="";
@@ -224,8 +230,11 @@ GetGluon::usage            = "returns the gluon";
 GetZBoson::usage           = "returns the Z boson";
 GetWBoson::usage           = "returns the W boson";
 GetHiggsBoson::usage       = "return Higgs boson(s)";
+GetPseudoscalarHiggsBoson::usage = "";
+GetChargedHiggsBoson::usage = "";
 
 GetSMTopQuarkMultiplet::usage    = "Returns multiplet containing the top quark, Fu or Ft";
+GetSMStrangeQuarkMultiplet::usage = "Returns multiplet containing the bottom quark, Fd or Fs";
 GetSMBottomQuarkMultiplet::usage = "Returns multiplet containing the bottom quark, Fd or Fb";
 GetSMElectronLeptonMultiplet::usage = "Returns multiplet containing the electron, Fe";
 GetSMMuonLeptonMultiplet::usage     = "Returns multiplet containing the muon, Fe or Fm";
@@ -259,6 +268,8 @@ CallDiagonalizeHermitianFunction::usage="";
 
 FlagPoleTachyon::usage = "";
 FlagRunningTachyon::usage = "";
+
+GetStrongCoupling::usage = "Returns the name of the QCD coupling, e.g. g3. If not present returns Null."
 
 Begin["`Private`"];
 
@@ -471,6 +482,25 @@ ColorChargedQ[field_] :=
 GetColoredParticles[] :=
     Select[GetParticles[], ColorChargedQ];
 
+GetColorRepresentation[SARAH`bar[particle_]] :=
+    Module[{rep = GetColorRepresentation[particle]},
+           If[rep =!= S && rep =!= O,
+              rep = -rep;
+             ];
+           rep
+          ];
+
+GetColorRepresentation[Susyno`LieGroups`conj[particle_]] :=
+    Module[{rep = GetColorRepresentation[particle]},
+           If[rep =!= S && rep =!= O,
+              rep = -rep;
+             ];
+           rep
+          ];
+
+GetColorRepresentation[particle_] :=
+    SARAH`getColorRep[particle];
+
 IsQuark[Susyno`LieGroups`conj[sym_]] := IsQuark[sym];
 IsQuark[SARAH`bar[sym_]] := IsQuark[sym];
 IsQuark[sym_[___]] := IsQuark[sym];
@@ -587,6 +617,7 @@ GetSMNeutrino2[]      := GetUpLepton[2];
 GetSMNeutrino3[]      := GetUpLepton[3];
 
 GetSMTopQuarkMultiplet[]       := GetUpQuark[3]    /. head_[_] :> head;
+GetSMStrangeQuarkMultiplet[]    := GetDownQuark[2]  /. head_[_] :> head;
 GetSMBottomQuarkMultiplet[]    := GetDownQuark[3]  /. head_[_] :> head;
 GetSMElectronLeptonMultiplet[] := GetDownLepton[1] /. head_[_] :> head;
 GetSMMuonLeptonMultiplet[]     := GetDownLepton[2] /. head_[_] :> head;
@@ -652,6 +683,9 @@ GetDimension[sym_Symbol, states_:FlexibleSUSY`FSEigenstates] :=
 GetDimensionStartSkippingGoldstones[sym_[__]] :=
     GetDimensionStartSkippingGoldstones[sym];
 
+GetDimensionStartSkippingGoldstones[(SARAH`bar|Susyno`LieGroups`conj)[sym_]] :=
+    GetDimensionStartSkippingGoldstones[sym];
+
 GetDimensionStartSkippingGoldstones[sym_, goldstoneGhost_] :=
     Module[{goldstones, max = 1},
            goldstones = Transpose[goldstoneGhost][[2]];
@@ -675,8 +709,11 @@ GetDimensionStartSkippingSMGoldstones[sym_] :=
 GetDimensionWithoutGoldstones[sym_[__], states_:FlexibleSUSY`FSEigenstates] :=
     GetDimensionWithoutGoldstones[sym, states];
 
+GetDimensionWithoutGoldstones[(SARAH`bar|Susyno`LieGroups`conj)[sym_], states_:FlexibleSUSY`FSEigenstates] :=
+    GetDimensionWithoutGoldstones[sym, states];
+
 GetDimensionWithoutGoldstones[sym_, states_:FlexibleSUSY`FSEigenstates] :=
-    Module[{goldstones, numberOfGoldstones},
+    Module[{dim, numberOfGoldstones},
            numberOfGoldstones = GetDimensionStartSkippingGoldstones[sym] - 1;
            dim = GetDimension[sym] - numberOfGoldstones;
            If[dim <= 0, 0, dim]
@@ -1082,6 +1119,19 @@ CreateParticleMixingNames[mixings_List] :=
            IndentText[result] <> "};\n"
           ];
 
+(* Note that "bar" and "conj" get turned into bar<...>::type and
+ conj<...>::type respectively! *)
+CreateFieldClassName[p_, OptionsPattern[{prefixNamespace -> False}]] :=
+    If[StringQ[OptionValue[prefixNamespace]],
+       OptionValue[prefixNamespace] <> "::",
+       ""] <> SymbolName[p];
+
+CreateFieldClassName[SARAH`bar[p_], OptionsPattern[{prefixNamespace -> False}]] :=
+    "typename field_traits::bar<" <> CreateFieldClassName[p, prefixNamespace -> OptionValue[prefixNamespace]] <> ">::type";
+
+CreateFieldClassName[Susyno`LieGroups`conj[p_], OptionsPattern[{prefixNamespace -> False}]] :=
+    "typename field_traits::conj<" <> CreateFieldClassName[p, prefixNamespace -> OptionValue[prefixNamespace]] <> ">::type";
+
 FillSpectrumVector[particles_List] :=
     Module[{par, parStr, massStr, latexName, result = ""},
            For[i = 1, i <= Length[particles], i++,
@@ -1407,10 +1457,7 @@ ReorderGoldstoneBosons[macro_String] :=
     ReorderGoldstoneBosons[GetParticles[], macro];
 
 CheckPoleMassesForTachyons[particles_List, macro_String] :=
-    Module[{result = ""},
-           (result = result <> CheckPoleMassesForTachyons[#,macro])& /@ particles;
-           Return[result];
-          ];
+    StringJoinWithSeparator[CheckPoleMassesForTachyons[#, macro]& /@ particles, "\n"];
 
 CheckPoleMassesForTachyons[particle_, macro_String] :=
     Module[{dimStart, dimEnd, particleName},
@@ -1425,8 +1472,7 @@ CheckPoleMassesForTachyons[particle_, macro_String] :=
            "if (" <>
            WrapMacro[CConversion`ToValidCSymbolString[FlexibleSUSY`M[particle]],macro] <>
            If[dimEnd > 1, ".tail<" <> ToString[dimEnd - dimStart + 1] <> ">().minCoeff()", ""]<>
-           " < 0.) " <>
-           FlagPoleTachyon[particleName]
+           " < 0.) { " <> FlagPoleTachyon[particleName] <> " }"
           ];
 
 CheckPoleMassesForTachyons[macro_String] :=
@@ -1512,15 +1558,15 @@ CreateHiggsMassGetters[particle_, macro_String] :=
 FlagPoleTachyon[particle_String, problems_String:"problems."] :=
     problems <> "flag_pole_tachyon(" <>
     FlexibleSUSY`FSModelName <> "_info::" <> particle <>
-    ");\n";
+    ");";
 
 FlagRunningTachyon[particle_String, problems_String:"problems."] :=
     problems <> "flag_running_tachyon(" <>
     FlexibleSUSY`FSModelName <> "_info::" <> particle <>
-    ");\n";
+    ");";
 
 FlagRunningTachyon[particles_List] :=
-    StringJoin[FlagRunningTachyon /@ particles];
+    StringJoinWithSeparator[FlagRunningTachyon /@ particles, "\n"];
 
 FlagRunningTachyon[particle_] :=
     FlagRunningTachyon[CConversion`ToValidCSymbolString[CConversion`GetHead[particle]]];
@@ -1528,7 +1574,7 @@ FlagRunningTachyon[particle_] :=
 CheckRunningTachyon[particle_, eigenvector_String] :=
     "if (" <> eigenvector <> If[GetDimension[particle] > 1, ".minCoeff()", ""] <> " < 0.) {\n" <>
     IndentText[FlagRunningTachyon[particle]] <>
-    "}\n";
+    "\n}\n";
 
 FlagBadMass[particle_String, eigenvalue_String] :=
     "problems.flag_bad_mass(" <> FlexibleSUSY`FSModelName <> "_info::" <> particle <>
@@ -1803,35 +1849,44 @@ ClearOutputParameters[massMatrix_TreeMasses`FSMassMatrix] :=
            Return[result];
           ];
 
-CopyDRBarMassesToPoleMasses[p:TreeMasses`FSMassMatrix[_,massESSymbols_List,_]] :=
+CopyRunningMassesFromTo[p:TreeMasses`FSMassMatrix[_, massESSymbols_List, mix_], from_String, to_String] :=
     Module[{massMatrices},
-           massMatrices = DeleteDuplicates[TreeMasses`FSMassMatrix[0, #, Null]& /@ massESSymbols];
-           StringJoin[CopyDRBarMassesToPoleMasses /@ massMatrices]
+           massMatrices = Join[
+                   DeleteDuplicates[TreeMasses`FSMassMatrix[0, #, Null]& /@ massESSymbols],
+                   { TreeMasses`FSMassMatrix[0, Null, mix] }
+           ];
+           StringJoin[CopyRunningMassesFromTo[#, from, to]& /@ massMatrices]
           ];
 
-CopyDRBarMassesToPoleMasses[massMatrix_TreeMasses`FSMassMatrix] :=
-    Module[{result, massESSymbol, mixingMatrixSymbol, dim, dimStr,
+CopyRunningMassesFromTo[massMatrix_TreeMasses`FSMassMatrix, from_String, to_String] :=
+    Module[{result = "", massESSymbol, mixingMatrixSymbol, dim, dimStr,
             i, massStr, mixStr},
            massESSymbol = GetMassEigenstate[massMatrix];
            mixingMatrixSymbol = GetMixingMatrixSymbol[massMatrix];
            dim = GetDimension[massESSymbol];
            dimStr = ToString[dim];
-           massStr = CConversion`ToValidCSymbolString[FlexibleSUSY`M[MakeESSymbol[massESSymbol]]];
            (* copy mass *)
-           result = "PHYSICAL(" <> massStr <> ") = " <> massStr <> ";\n";
+           If[massESSymbol =!= Null,
+              massStr = CConversion`ToValidCSymbolString[FlexibleSUSY`M[MakeESSymbol[massESSymbol]]];
+              result = WrapMacro[massStr, to] <> " = " <> WrapMacro[massStr, from] <> ";\n";
+           ];
+           (* copy mixings *)
            If[mixingMatrixSymbol =!= Null,
               If[Head[mixingMatrixSymbol] === List,
                  For[i = 1, i <= Length[mixingMatrixSymbol], i++,
                      mixStr = CConversion`ToValidCSymbolString[mixingMatrixSymbol[[i]]];
-                     result = result <> "PHYSICAL(" <> mixStr <> ") = " <> mixStr <> ";\n";
+                     result = result <> WrapMacro[mixStr, to] <> " = " <> WrapMacro[mixStr, from] <> ";\n";
                     ];
                  ,
                  mixStr = CConversion`ToValidCSymbolString[mixingMatrixSymbol];
-                 result = result <> "PHYSICAL(" <> mixStr <> ") = " <> mixStr <> ";\n";
+                 result = result <> WrapMacro[mixStr, to] <> " = " <> WrapMacro[mixStr, from] <> ";\n";
                 ];
              ];
-           Return[result];
+           result
           ];
+
+CopyDRBarMassesToPoleMasses[p_] :=
+        CopyRunningMassesFromTo[p, "", "PHYSICAL"];
 
 FindColorGaugeGroup[] :=
     Module[{coupling, gaugeGroup, result},
@@ -1962,11 +2017,14 @@ CreateGenerationHelperFunction[gen_, fermion_ /; fermion === SARAH`TopSquark] :=
    sf_data.Yl  = sfermions::Hypercharge_left[sfermions::up];
    sf_data.Yr  = sfermions::Hypercharge_right[sfermions::up];
 
-   Eigen::Array<double,2,1> msf;
+   theta = sfermions::diagonalize_sfermions_2x2(sf_data, msf1, msf2);
 
-   theta = sfermions::diagonalize_sfermions_2x2(sf_data, msf);
-   msf1  = msf(0);
-   msf2  = msf(1);
+   if (msf1 < 0 || msf2 < 0) {
+      VERBOSE_MSG(\"diagonalize_sfermions_2x2: stop tachyon\");
+   }
+
+   msf1 = AbsSqrt(msf1);
+   msf2 = AbsSqrt(msf2);
 }
 ";
 
@@ -1989,11 +2047,14 @@ CreateGenerationHelperFunction[gen_, fermion_ /; fermion === SARAH`BottomSquark]
    sf_data.Yl  = sfermions::Hypercharge_left[sfermions::down];
    sf_data.Yr  = sfermions::Hypercharge_right[sfermions::down];
 
-   Eigen::Array<double,2,1> msf;
+   theta = sfermions::diagonalize_sfermions_2x2(sf_data, msf1, msf2);
 
-   theta = sfermions::diagonalize_sfermions_2x2(sf_data, msf);
-   msf1  = msf(0);
-   msf2  = msf(1);
+   if (msf1 < 0 || msf2 < 0) {
+      VERBOSE_MSG(\"diagonalize_sfermions_2x2: sbottom tachyon\");
+   }
+
+   msf1 = AbsSqrt(msf1);
+   msf2 = AbsSqrt(msf2);
 }
 ";
 
@@ -2016,11 +2077,14 @@ CreateGenerationHelperFunction[gen_, fermion_ /; fermion === SARAH`Selectron] :=
    sf_data.Yl  = sfermions::Hypercharge_left[sfermions::electron];
    sf_data.Yr  = sfermions::Hypercharge_right[sfermions::electron];
 
-   Eigen::Array<double,2,1> msf;
+   theta = sfermions::diagonalize_sfermions_2x2(sf_data, msf1, msf2);
 
-   theta = sfermions::diagonalize_sfermions_2x2(sf_data, msf);
-   msf1  = msf(0);
-   msf2  = msf(1);
+   if (msf1 < 0 || msf2 < 0) {
+      VERBOSE_MSG(\"diagonalize_sfermions_2x2: selecton tachyon\");
+   }
+
+   msf1 = AbsSqrt(msf1);
+   msf2 = AbsSqrt(msf2);
 }
 ";
 
@@ -2043,11 +2107,14 @@ CreateGenerationHelperFunction[gen_, fermion_ /; fermion === SARAH`Sneutrino] :=
    sf_data.Yl  = sfermions::Hypercharge_left[sfermions::neutrino];
    sf_data.Yr  = sfermions::Hypercharge_right[sfermions::neutrino];
 
-   Eigen::Array<double,2,1> msf;
+   theta = sfermions::diagonalize_sfermions_2x2(sf_data, msf1, msf2);
 
-   theta = sfermions::diagonalize_sfermions_2x2(sf_data, msf);
-   msf1  = msf(0);
-   msf2  = msf(1);
+   if (msf1 < 0 || msf2 < 0) {
+      VERBOSE_MSG(\"diagonalize_sfermions_2x2: sneutrino tachyon\");
+   }
+
+   msf1 = AbsSqrt(msf1);
+   msf2 = AbsSqrt(msf2);
 }
 ";
 
@@ -2210,22 +2277,51 @@ CreateMixingArraySetter[masses_List, array_String] :=
            Return[set];
           ];
 
-(* Once Dominik wanted to have functions identifying SM particles.
-   This might be non-trivial in some models.
-   For now, we just have wrappers that return SM particles using SARAH symbols *)
+(*
+   1. Once Dominik wanted to have functions identifying SM particles.
+      This might be non-trivial in some models.
+      For now, we just have wrappers that return SM particles using SARAH symbols
+   2. If a particle does not exist in the model, we don't stop.
+      Instead, we return Null and let the calling code decide how to handle it.
+*)
 
-GetPhoton[] := SARAH`Photon;
-GetGluon[] := SARAH`Gluon;
-GetZBoson[] := SARAH`Zboson;
+GetPhoton[] :=
+   If[ValueQ[SARAH`Photon],
+      SARAH`Photon
+   ];
+
+GetGluon[] :=
+   If[ValueQ[SARAH`Gluon],
+      SARAH`Gluon
+   ];
+
+GetZBoson[] :=
+   If[ValueQ[SARAH`Zboson],
+      SARAH`Zboson
+   ];
+
 GetWBoson[] :=
-   Module[{temp},
-      temp = Select[Unevaluated[{SARAH`Wboson, SARAH`VectorW}], ValueQ];
+   Module[{temp = Select[Unevaluated[{SARAH`Wboson, SARAH`VectorW}], ValueQ]},
       If[Length @ DeleteDuplicates[temp] === 1,
-         temp[[1]],
-         Print["Could not identify the name given to the W-boson"]; Quit[1]
+         temp[[1]]
       ]
    ];
-GetHiggsBoson[] := SARAH`HiggsBoson;
+
+GetHiggsBoson[] :=
+   If[ValueQ[SARAH`HiggsBoson],
+      SARAH`HiggsBoson
+   ];
+
+GetChargedHiggsBoson[] :=
+   If[ValueQ[SARAH`ChargedHiggs],
+      SARAH`ChargedHiggs
+   ];
+
+GetPseudoscalarHiggsBoson[] :=
+   If[ValueQ[SARAH`PseudoScalarBoson], SARAH`PseudoScalarBoson];
+
+GetStrongCoupling[] :=
+   If[ValueQ[SARAH`strongCoupling], SARAH`strongCoupling];
 
 End[];
 

@@ -7,7 +7,7 @@ BASE_TEMPLATES := \
 		$(DIR)/cxx_qft/vertices.hpp.in \
 		$(DIR)/cxx_qft/vertices_.cpp.in \
 		$(DIR)/cxx_qft/context_base.hpp.in \
-		$(DIR)/cxx_qft/npointfunctions.hpp.in \
+		$(DIR)/cxx_qft/npointfunctions_wilsoncoeffs.hpp.in \
 		$(DIR)/a_muon.hpp.in \
 		$(DIR)/a_muon.cpp.in \
 		$(DIR)/edm.hpp.in \
@@ -16,6 +16,10 @@ BASE_TEMPLATES := \
 		$(DIR)/FFV_form_factors.cpp.in \
 		$(DIR)/l_to_lgamma.hpp.in \
 		$(DIR)/l_to_lgamma.cpp.in \
+		$(DIR)/f_to_f_conversion.hpp.in \
+		$(DIR)/f_to_f_conversion.cpp.in \
+		$(DIR)/b_to_s_gamma.cpp.in \
+		$(DIR)/b_to_s_gamma.hpp.in \
 		$(DIR)/convergence_tester.hpp.in \
 		$(DIR)/ewsb_solver.hpp.in \
 		$(DIR)/ewsb_solver_interface.hpp.in \
@@ -32,6 +36,9 @@ BASE_TEMPLATES := \
 		$(DIR)/low_scale_constraint.hpp.in \
 		$(DIR)/mass_eigenstates.hpp.in \
 		$(DIR)/mass_eigenstates.cpp.in \
+		$(DIR)/mass_eigenstates_interface.hpp.in \
+		$(DIR)/mass_eigenstates_decoupling_scheme.hpp.in \
+		$(DIR)/mass_eigenstates_decoupling_scheme.cpp.in \
 		$(DIR)/model.hpp.in \
 		$(DIR)/model_slha.hpp.in \
 		$(DIR)/observables.hpp.in \

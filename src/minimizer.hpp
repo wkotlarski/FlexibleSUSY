@@ -19,7 +19,6 @@
 #ifndef MINIMIZER_H
 #define MINIMIZER_H
 
-#include <iostream>
 #include <utility>
 #include <Eigen/Core>
 #include <gsl/gsl_vector.h>
@@ -65,6 +64,7 @@ public:
    template <typename F>
    Minimizer(F&&, std::size_t, double, Solver_type solver_type_ = GSLSimplex2);
    virtual ~Minimizer() = default;
+   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
    double get_minimum_value() const { return minimum_value; }
    template <typename F>
@@ -158,15 +158,13 @@ int Minimizer<dimension>::minimize(const Vector_t& start)
       const double size = gsl_multimin_fminimizer_size(minimizer);
       status = gsl_multimin_test_size(size, precision);
 
-#ifdef ENABLE_VERBOSE
       print_state(minimizer, iter);
-#endif
    } while (status == GSL_CONTINUE && iter < max_iterations);
 
    VERBOSE_MSG("\t\t\tMinimization status = " << gsl_strerror(status));
 
    // save minimum point and function value
-   minimum_point = to_eigen_vector_fixed<dimension>(minimizer->x);
+   minimum_point = to_eigen_vector<dimension>(minimizer->x);
    minimum_value = minimizer->fval;
 
    gsl_multimin_fminimizer_free(minimizer);
@@ -203,7 +201,7 @@ double Minimizer<dimension>::gsl_function(const gsl_vector* x, void* params)
       return std::numeric_limits<double>::max();
 
    Function_t* fun = static_cast<Function_t*>(params);
-   const Vector_t arg(to_eigen_vector_fixed<dimension>(x));
+   const Vector_t arg(to_eigen_vector<dimension>(x));
    double result = std::numeric_limits<double>::max();
 
    try {

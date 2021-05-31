@@ -16,13 +16,11 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at @DateAndTime@
 
 /**
  * @file @ModelName@_a_muon.cpp
  *
- * This file was generated at @DateAndTime@ with FlexibleSUSY
- * @FlexibleSUSYVersion@ and SARAH @SARAHVersion@ .
+ * This file was generated with FlexibleSUSY @FlexibleSUSYVersion@ and SARAH @SARAHVersion@ .
  */
 
 #include "@ModelName@_a_muon.hpp"
@@ -45,7 +43,7 @@ namespace {
 
 double get_QED_2L(context_base&, const softsusy::QedQcd&);
 
-double get_MSUSY(const @ModelName@_mass_eigenstates& model)
+double get_MSUSY(const @ModelName@_mass_eigenstates_interface& model)
 {
 @AMuon_GetMSUSY@
 }

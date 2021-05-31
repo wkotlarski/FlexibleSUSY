@@ -1,46 +1,125 @@
 // ====================================================================
-// This file is part of GM2Calc.
+// This file is part of FlexibleSUSY.
 //
-// GM2Calc is free software: you can redistribute it and/or modify
+// FlexibleSUSY is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published
 // by the Free Software Foundation, either version 3 of the License,
 // or (at your option) any later version.
 //
-// GM2Calc is distributed in the hope that it will be useful, but
+// FlexibleSUSY is distributed in the hope that it will be useful, but
 // WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 // General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with GM2Calc.  If not, see
+// along with FlexibleSUSY.  If not, see
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
 #include "dilog.hpp"
+#include "complex.hpp"
+#include <cfloat>
 #include <cmath>
 #include <limits>
 
 namespace flexiblesusy {
 
 namespace {
-   template <typename T>
-   T sqr(T x) noexcept { return x*x; }
-} // namespace
+
+   template <int Nstart, int Nend, typename T, int N>
+   Complex<T> horner(const Complex<T>& z, const T (&coeffs)[N]) noexcept
+   {
+      static_assert(Nstart <= Nend && Nend < N && Nend >= 1, "invalid array bounds");
+
+      const T r = z.re + z.re;
+      const T s = z.re * z.re + z.im * z.im;
+      T a = coeffs[Nend], b = coeffs[Nend - 1];
+
+      for (int i = Nend - 2; i >= Nstart; --i) {
+         const T t = a;
+         a = b + r * a;
+         b = coeffs[i] - s * t;
+      }
+
+      return Complex<T>(z.re*a + b, z.im*a);
+   }
+
+} // anonymous namespace
 
 /**
- * @brief Real dilogarithm \f$\mathrm{Li}_2(z)\f$
- * @param x real argument
- * @note Implementation translated by R.Brun from CERNLIB DILOG function C332
- * @return \f$\mathrm{Li}_2(z)\f$
+ * @brief Clausen function \f$\mathrm{Cl}_2(\theta) = \mathrm{Im}(\mathrm{Li}_2(e^{i\theta}))\f$
+ * @param x real angle
+ * @return \f$\mathrm{Cl}_2(\theta)\f$
  */
-double dilog(double x) noexcept {
-   const double PI = M_PI;
+double clausen_2(double x) noexcept
+{
+   const double PI = 3.141592653589793;
+   const std::complex<double> i(0.0, 1.0);
+
+   while (x >= 2*PI) {
+      x -= 2*PI;
+   }
+
+   while (x < 0.0) {
+      x += 2*PI;
+   }
+
+   if (std::abs(x) < std::numeric_limits<double>::epsilon() ||
+       std::abs(x - PI) < std::numeric_limits<double>::epsilon() ||
+       std::abs(x - 2*PI) < std::numeric_limits<double>::epsilon()) {
+      return 0.0;
+   }
+
+   return std::imag(dilog(std::exp(i*x)));
+}
+
+/**
+ * @brief Clausen function \f$\mathrm{Cl}_2(\theta) = \mathrm{Im}(\mathrm{Li}_2(e^{i\theta}))\f$ with long double precision
+ * @param x real angle
+ * @return \f$\mathrm{Cl}_2(\theta)\f$
+ */
+long double clausen_2(long double x) noexcept
+{
+   const long double PI = 3.14159265358979323846264338327950288L;
+   const std::complex<long double> i(0.0L, 1.0L);
+
+   while (x >= 2*PI) {
+      x -= 2*PI;
+   }
+
+   while (x < 0.0L) {
+      x += 2*PI;
+   }
+
+   if (std::abs(x) < std::numeric_limits<long double>::epsilon() ||
+       std::abs(x - PI) < std::numeric_limits<long double>::epsilon() ||
+       std::abs(x - 2*PI) < std::numeric_limits<long double>::epsilon()) {
+      return 0.0L;
+   }
+
+   return std::imag(dilog(std::exp(i*x)));
+}
+
+/**
+ * @brief Real dilogarithm \f$\mathrm{Li}_2(x)\f$
+ * @param x real argument
+ * @return \f$\mathrm{Li}_2(x)\f$
+ * @note Implementation translated by R.Brun from CERNLIB DILOG function C332
+ * @author K.S. Kölbig
+ *
+ * Implemented as a truncated series expansion in terms of Chebyshev
+ * polynomials, see [Yudell L. Luke: Mathematical functions and their
+ * approximations, Academic Press Inc., New York 1975, p.67].
+ */
+double dilog(double x) noexcept
+{
+   const double PI  = 3.141592653589793;
    const double HF  = 0.5;
    const double PI2 = PI*PI;
    const double PI3 = PI2/3;
    const double PI6 = PI2/6;
    const double PI12 = PI2/12;
-   const double C[20] = {0.42996693560813697, 0.40975987533077105,
+   const double C[20] = {  0.42996693560813697, 0.40975987533077106,
      -0.01858843665014592, 0.00145751084062268,-0.00014304184442340,
       0.00001588415541880,-0.00000190784959387, 0.00000024195180854,
      -0.00000003193341274, 0.00000000434545063,-0.00000000060578480,
@@ -48,7 +127,7 @@ double dilog(double x) noexcept {
      -0.00000000000027007, 0.00000000000004042,-0.00000000000000610,
       0.00000000000000093,-0.00000000000000014, 0.00000000000000002};
 
-   double T,H,Y,S,A,ALFA,B1,B2,B0;
+   double T = 0, H = 0, Y = 0, S = 0, A = 0, ALFA = 0, B1 = 0, B2 = 0, B0 = 0;
 
    if (x == 1) {
        H = PI6;
@@ -59,23 +138,23 @@ double dilog(double x) noexcept {
        if (T <= -2) {
            Y = -1/(1+T);
            S = 1;
-           B1= log(-T);
-           B2= log(1+1/T);
+           B1= std::log(-T);
+           B2= std::log(1+1/T);
            A = -PI3+HF*(B1*B1-B2*B2);
        } else if (T < -1) {
            Y = -1-T;
            S = -1;
-           A = log(-T);
-           A = -PI6+A*(A+log(1+1/T));
+           A = std::log(-T);
+           A = -PI6+A*(A+std::log(1+1/T));
        } else if (T <= -0.5) {
            Y = -(1+T)/T;
            S = 1;
-           A = log(-T);
-           A = -PI6+A*(-HF*A+log(1+T));
+           A = std::log(-T);
+           A = -PI6+A*(-HF*A+std::log(1+T));
        } else if (T < 0) {
            Y = -T/(1+T);
            S = -1;
-           B1= log(1+T);
+           B1= std::log(1+T);
            A = HF*B1*B1;
        } else if (T <= 1) {
            Y = T;
@@ -84,14 +163,14 @@ double dilog(double x) noexcept {
        } else {
            Y = 1/T;
            S = -1;
-           B1= log(T);
+           B1= std::log(T);
            A = PI6+HF*B1*B1;
        }
        H    = Y+Y-1;
        ALFA = H+H;
        B1   = 0;
        B2   = 0;
-       for (int i=19;i>=0;i--){
+       for (int i = 19; i >= 0; i--) {
           B0 = C[i] + ALFA*B1-B2;
           B2 = B1;
           B1 = B0;
@@ -102,214 +181,293 @@ double dilog(double x) noexcept {
 }
 
 /**
- * @brief Real dilogarithm \f$\mathrm{Li}_2(z)\f$
+ * @brief Real dilogarithm \f$\mathrm{Li}_2(z)\f$ with long double precision
  * @param x real argument
- * @note Implementation translated by R.Brun from CERNLIB DILOG function C332
  * @return \f$\mathrm{Li}_2(z)\f$
+ * @author K.S. Kölbig
+ * @note Implementation based on translation by R.Brun from CERNLIB
+ *    DILOG function C332, extended by Alexander Voigt to long double
+ *    precision
  *
- * @note not full long double precision yet!
+ * Implemented as a truncated series expansion in terms of Chebyshev
+ * polynomials, see [Yudell L. Luke: Mathematical functions and their
+ * approximations, Academic Press Inc., New York 1975, p.67].
  */
-long double dilog(long double x) noexcept {
-   return dilog(static_cast<double>(x));
-}
-
-/**
- * @brief Complex dilogarithm \f$\mathrm{Li}_2(z)\f$
- * @param z complex argument
- * @note Implementation translated from SPheno to C++
- * @return \f$\mathrm{Li}_2(z)\f$
- */
-std::complex<long double> dilog(const std::complex<long double>& z) noexcept
+long double dilog(long double x) noexcept
 {
-   const long double PI = 3.141592653589793238l;
-   static const int N = 12;
-
-   // bf[1..N-1] are the even Bernoulli numbers / (2 n + 1)!
-   // generated by: Table[BernoulliB[2 n]/(2 n + 1)!, {n, 1, 11}]
-   const long double bf[N] = {
-      - 1.l/4.l                  , 1.l/36.l                 ,
-      - 1.l/36.e2l               , 1.l/21168.e1l            ,
-      - 1.l/108864.e2l           , 1.l/52690176.e1l         ,
-      - 4.064761645144225527e-11l, 8.921691020456452555e-13l,
-      - 1.993929586072107569e-14l, 4.518980029619918192e-16l,
-      - 1.035651761218124701e-17l, 2.395218621026186746e-19l
+   const long double PI  = 3.14159265358979323846264338327950288L;
+   const long double HF  = 0.5L;
+   const long double PI2 = PI*PI;
+   const long double PI3 = PI2/3;
+   const long double PI6 = PI2/6;
+   const long double PI12 = PI2/12;
+   const long double C[] = {
+      0.4299669356081369720370336786993879912L,
+      0.4097598753307710584682637109252552781L,
+     -0.0185884366501459196476416491402122676L,
+      0.0014575108406226785536739284164594927L,
+     -0.0001430418444234004877488301200908765L,
+      0.0000158841554187955323619055047167740L,
+     -0.0000019078495938658272271963211420884L,
+      0.0000002419518085416474949946146434290L,
+     -0.0000000319334127425178346049601414286L,
+      0.0000000043454506267691229879571784782L,
+     -0.0000000006057848011840744442970533091L,
+      0.0000000000861209779935949824428368452L,
+     -0.0000000000124433165993886798964242137L,
+      0.0000000000018225569623573633006554774L,
+     -0.0000000000002700676604911465180857223L,
+      0.0000000000000404220926315266464883286L,
+     -0.0000000000000061032514526918795037783L,
+      0.0000000000000009286297533019575861303L,
+     -0.0000000000000001422602085511244683975L,
+      0.0000000000000000219263171815395735398L,
+     -0.0000000000000000033979732421589786340L,
+#if LDBL_DIG > 18
+      0.0000000000000000005291954244833147146L,
+     -0.0000000000000000000827858081427899765L,
+      0.0000000000000000000130037173454556037L,
+     -0.0000000000000000000020502222425528249L,
+      0.0000000000000000000003243578549148930L,
+     -0.0000000000000000000000514779990334321L,
+      0.0000000000000000000000081938774771716L,
+     -0.0000000000000000000000013077835405713L,
+      0.0000000000000000000000002092562930580L,
+     -0.0000000000000000000000000335616615054L,
+      0.0000000000000000000000000053946577714L,
+     -0.0000000000000000000000000008689193209L,
+      0.0000000000000000000000000001402281687L,
+     -0.0000000000000000000000000000226715578L,
+      0.0000000000000000000000000000036717417L,
+     -0.0000000000000000000000000000005956152L,
+      0.0000000000000000000000000000000967662L,
+     -0.0000000000000000000000000000000157439L,
+      0.0000000000000000000000000000000025650L,
+     -0.0000000000000000000000000000000004185L,
+      0.0000000000000000000000000000000000683L,
+     -0.0000000000000000000000000000000000112L,
+      0.0000000000000000000000000000000000018L,
+     -0.0000000000000000000000000000000000003L
+#endif
    };
 
-   const long double rz = std::real(z);
-   const long double iz = std::imag(z);
-   const long double az = std::abs(z);
+   long double T = 0, H = 0, Y = 0, S = 0, A = 0, ALFA = 0, B1 = 0, B2 = 0, B0 = 0;
 
-   // special cases
-   if (iz == 0.l) {
-      if (rz <= 1.l)
-         return std::complex<long double>(dilog(rz), 0.l);
-      if (rz > 1.l)
-         return std::complex<long double>(dilog(rz), -PI*std::log(rz));
-   } else if (az < std::numeric_limits<long double>::epsilon()) {
-      return z;
-   }
-
-   std::complex<long double> cy, cz;
-   int jsgn, ipi12;
-
-   // transformation to |z|<1, Re(z)<=0.5
-   if (rz <= 0.5l) {
-      if (az > 1.l) {
-         cy = -0.5l * sqr(std::log(-z));
-         cz = -std::log(1.l - 1.l / z);
-         jsgn = -1;
-         ipi12 = -2;
-      } else { // (az <= 1.)
-         cy = 0;
-         cz = -std::log(1.l - z);
-         jsgn = 1;
-         ipi12 = 0;
-      }
-   } else { // rz > 0.5
-      if (az <= std::sqrt(2*rz)) {
-         cz = -std::log(z);
-         cy = cz * std::log(1.l - z);
-         jsgn = -1;
-         ipi12 = 2;
-      } else { // (az > sqrt(2*rz))
-         cy = -0.5l * sqr(std::log(-z));
-         cz = -std::log(1.l - 1.l / z);
-         jsgn = -1;
-         ipi12 = -2;
-      }
-   }
-
-   // the dilogarithm
-   const std::complex<long double> cz2(sqr(cz));
-   const std::complex<long double> sum =
-      cz +
-      cz2 * (bf[0] +
-      cz  * (bf[1] +
-      cz2 * (bf[2] +
-      cz2 * (bf[3] +
-      cz2 * (bf[4] +
-      cz2 * (bf[5] +
-      cz2 * (bf[6] +
-      cz2 * (bf[7] +
-      cz2 * (bf[8] +
-      cz2 * (bf[9] +
-      cz2 * (bf[10] +
-      cz2 * (bf[11]))))))))))));
-
-   return static_cast<long double>(jsgn) * sum + cy + ipi12 * PI * PI / 12.l;
+   if (x == 1) {
+       H = PI6;
+   } else if (x == -1) {
+       H = -PI12;
+   } else {
+       T = -x;
+       if (T <= -2) {
+           Y = -1/(1+T);
+           S = 1;
+           B1= std::log(-T);
+           B2= std::log(1+1/T);
+           A = -PI3+HF*(B1*B1-B2*B2);
+       } else if (T < -1) {
+           Y = -1-T;
+           S = -1;
+           A = std::log(-T);
+           A = -PI6+A*(A+std::log(1+1/T));
+       } else if (T <= -0.5L) {
+           Y = -(1+T)/T;
+           S = 1;
+           A = std::log(-T);
+           A = -PI6+A*(-HF*A+std::log(1+T));
+       } else if (T < 0) {
+           Y = -T/(1+T);
+           S = -1;
+           B1= std::log(1+T);
+           A = HF*B1*B1;
+       } else if (T <= 1) {
+           Y = T;
+           S = 1;
+           A = 0;
+       } else {
+           Y = 1/T;
+           S = -1;
+           B1= std::log(T);
+           A = PI6+HF*B1*B1;
+       }
+       H    = Y+Y-1;
+       ALFA = H+H;
+       B1   = 0;
+       B2   = 0;
+       for (int i = sizeof(C)/sizeof(C[0]) - 1; i >= 0; i--) {
+          B0 = C[i] + ALFA*B1-B2;
+          B2 = B1;
+          B1 = B0;
+       }
+       H = -(S*(B0-H*B2)+A);
+    }
+    return H;
 }
 
 /**
  * @brief Complex dilogarithm \f$\mathrm{Li}_2(z)\f$
- * @param z complex argument
- * @note Implementation translated from SPheno to C++
+ * @param z_ complex argument
  * @return \f$\mathrm{Li}_2(z)\f$
+ * @note Implementation translated from SPheno to C++
+ * @author Werner Porod
+ * @note translated to C++ by Alexander Voigt
  */
-std::complex<double> dilog(const std::complex<double>& z) noexcept
+std::complex<double> dilog(const std::complex<double>& z_) noexcept
 {
    const double PI = 3.141592653589793;
-   static const int N = 10;
+   const Complex<double> z = { std::real(z_), std::imag(z_) };
 
    // bf[1..N-1] are the even Bernoulli numbers / (2 n + 1)!
    // generated by: Table[BernoulliB[2 n]/(2 n + 1)!, {n, 1, 9}]
-   const double bf[N] = {
-      - 1./4.,
-      + 1./36.,
-      - 1./3600.,
-      + 1./211680.,
-      - 1./10886400.,
-      + 1./526901760.,
+   const double bf[10] = {
+      - 1.0/4.0,
+      + 1.0/36.0,
+      - 1.0/3600.0,
+      + 1.0/211680.0,
+      - 1.0/10886400.0,
+      + 1.0/526901760.0,
       - 4.064761645144226e-11,
       + 8.921691020456453e-13,
       - 1.993929586072108e-14,
       + 4.518980029619918e-16
    };
 
-   const double rz = std::real(z);
-   const double iz = std::imag(z);
-   const double az = std::abs(z);
+   const double nz = norm_sqr(z);
 
    // special cases
-   if (iz == 0.) {
-      if (rz <= 1.)
-         return {dilog(rz), 0.};
-      else // (rz > 1.)
-         return {dilog(rz), -PI*std::log(rz)};
-   } else if (az < std::numeric_limits<double>::epsilon()) {
-      return z;
+   if (z.im == 0) {
+      if (z.re <= 1) {
+         return dilog(z.re);
+      }
+      // z.re > 1
+      return { dilog(z.re), -PI*std::log(z.re) };
+   } else if (nz < std::numeric_limits<double>::epsilon()) {
+      return z_;
    }
 
-   std::complex<double> cy, cz;
-   int jsgn, ipi12;
+   Complex<double> cy(0.0, 0.0), cz(0.0, 0.0);
+   double sgn = 1;
 
    // transformation to |z|<1, Re(z)<=0.5
-   if (rz <= 0.5) {
-      if (az > 1.) {
-         cy = -0.5 * sqr(std::log(-z));
-         cz = -std::log(1. - 1. / z);
-         jsgn = -1;
-         ipi12 = -2;
-      } else { // (az <= 1.)
+   if (z.re <= 0.5) {
+      if (nz > 1) {
+         const Complex<double> lz = log(-z);
+         cy = -0.5 * lz*lz - PI * PI / 6.0;
+         cz = -log(1.0 - 1.0 / z);
+         sgn = -1;
+      } else { // nz <= 1
          cy = 0;
-         cz = -std::log(1. - z);
-         jsgn = 1;
-         ipi12 = 0;
+         cz = -log(1.0 - z);
+         sgn = 1;
       }
-   } else { // rz > 0.5
-      if (az <= std::sqrt(2*rz)) {
-         cz = -std::log(z);
-         cy = cz * std::log(1. - z);
-         jsgn = -1;
-         ipi12 = 2;
-      } else { // (az > sqrt(2*rz))
-         cy = -0.5 * sqr(std::log(-z));
-         cz = -std::log(1. - 1. / z);
-         jsgn = -1;
-         ipi12 = -2;
+   } else { // z.re > 0.5
+      if (nz <= 2*z.re) {
+         cz = -log(z);
+         cy = cz * log(1.0 - z) + PI * PI / 6.0;
+         sgn = -1;
+      } else { // nz > 2*z.re
+         const Complex<double> lz = log(-z);
+         cy = -0.5 * lz*lz - PI * PI / 6.0;
+         cz = -log(1.0 - 1.0 / z);
+         sgn = -1;
       }
    }
 
-   // the dilogarithm
-   const std::complex<double> cz2(sqr(cz));
-   const std::complex<double> sum =
-      cz +
-      cz2 * (bf[0] +
-      cz  * (bf[1] +
-      cz2 * (bf[2] +
-      cz2 * (bf[3] +
-      cz2 * (bf[4] +
-      cz2 * (bf[5] +
-      cz2 * (bf[6] +
-      cz2 * (bf[7] +
-      cz2 * (bf[8] +
-      cz2 * (bf[9]))))))))));
+   const Complex<double> cz2(cz*cz);
 
-   return double(jsgn) * sum + cy + ipi12 * PI * PI / 12.;
+   return sgn*(cz + cz2*(bf[0] + cz*horner<1, 9>(cz2, bf))) + cy;
 }
 
 /**
- * @brief Clausen function \f$\mathrm{Cl}_2(\theta)\f$
- * @param x real angle
- * @return \f$\mathrm{Cl}_2(\theta)\f$
+ * @brief Complex dilogarithm \f$\mathrm{Li}_2(z)\f$ with long double precision
+ * @param z_ complex argument
+ * @return \f$\mathrm{Li}_2(z)\f$
+ * @note Implementation translated from SPheno to C++
+ * @author Werner Porod
+ * @note translated to C++ and extended to long double precision by Alexander Voigt
  */
-double clausen_2(double x) noexcept
+std::complex<long double> dilog(const std::complex<long double>& z_) noexcept
 {
-   using std::exp;
-   const double PI = 3.141592653589793;
-   const std::complex<double> i(0.,1.);
+   const long double PI = 3.14159265358979323846264338327950288L;
+   const Complex<long double> z = { std::real(z_), std::imag(z_) };
 
-   while (x >= 2*PI)
-      x -= 2*PI;
+   // bf[1..N-1] are the even Bernoulli numbers / (2 n + 1)!
+   // generated by: Table[BernoulliB[2 n]/(2 n + 1)!, {n, 1, 22}]
+   const long double bf[] = {
+      -1.0L/4.0L                                 ,
+       1.0L/36.0L                                ,
+      -1.0L/3600.0L                              ,
+       1.0L/211680.0L                            ,
+      -1.0L/10886400.0L                          ,
+       1.0L/526901760.0L                         ,
+      -4.06476164514422552680590938629196667e-11L,
+       8.92169102045645255521798731675274885e-13L,
+      -1.99392958607210756872364434779378971e-14L,
+       4.51898002961991819165047655285559323e-16L,
+      -1.03565176121812470144834115422186567e-17L,
+#if LDBL_DIG > 18
+       2.39521862102618674574028374300098038e-19L,
+      -5.58178587432500933628307450562541991e-21L,
+       1.30915075541832128581230739918659230e-22L,
+      -3.08741980242674029324227976486646243e-24L,
+       7.31597565270220342035790560925214859e-26L,
+      -1.74084565723400074098905514775970255e-27L,
+       4.15763564461389971961789962077522667e-29L,
+      -9.96214848828462210319400670245583885e-31L,
+       2.39403442489616530052116798789374956e-32L,
+      -5.76834735536739008429179316187765424e-34L,
+       1.39317947964700797782788660391154833e-35L,
+      -3.37212196548508947046847363525493096e-37L
+#endif
+   };
 
-   while (x < 0.)
-      x += 2*PI;
+   constexpr int N = sizeof(bf)/sizeof(bf[0]);
 
-   if (std::abs(x) < std::numeric_limits<double>::epsilon() ||
-       std::abs(x - PI) < std::numeric_limits<double>::epsilon() ||
-       std::abs(x - 2*PI) < std::numeric_limits<double>::epsilon())
-      return 0.;
+   const long double nz = norm_sqr(z);
 
-   return std::imag(dilog(exp(i*x)));
+   // special cases
+   if (z.im == 0) {
+      if (z.re <= 1) {
+         return dilog(z.re);
+      }
+      if (z.re > 1) {
+         return { dilog(z.re), -PI*std::log(z.re) };
+      }
+   } else if (nz < std::numeric_limits<long double>::epsilon()) {
+      return z_;
+   }
+
+   Complex<long double> cy(0.0L, 0.0L), cz(0.0L, 0.0L);
+   long double sgn = 1;
+
+   // transformation to |z|<1, Re(z)<=0.5
+   if (z.re <= 0.5L) {
+      if (nz > 1) {
+         const Complex<long double> lz = log(-z);
+         cy = -0.5L * lz*lz - PI * PI / 6.0L;
+         cz = -log(1.0L - 1.0L/z);
+         sgn = -1;
+      } else { // nz <= 1
+         cy = 0;
+         cz = -log(1.0L - z);
+         sgn = 1;
+      }
+   } else { // z.re > 0.5L
+      if (nz <= 2*z.re) {
+         cz = -log(z);
+         cy = cz * log(1.0L - z) + PI * PI / 6.0L;
+         sgn = -1;
+      } else { // nz > 2*z.re
+         const Complex<long double> lz = log(-z);
+         cy = -0.5L * lz*lz - PI * PI / 6.0L;
+         cz = -log(1.0L - 1.0L/z);
+         sgn = -1;
+      }
+   }
+
+   const Complex<long double> cz2(cz*cz);
+
+   return sgn*(cz + cz2*(bf[0] + cz*horner<1, N-1>(cz2, bf))) + cy;
 }
 
 } // namespace flexiblesusy

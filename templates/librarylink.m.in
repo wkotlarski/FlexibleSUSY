@@ -58,13 +58,14 @@ fsDefaultSettings = {
       eftMatchingLoopOrderDown -> 1,     (* FlexibleSUSY[21] *)
       eftHiggsIndex -> 0,                (* FlexibleSUSY[22] *)
       calculateBSMMasses -> 1,           (* FlexibleSUSY[23] *)
-      thresholdCorrections -> 124111321, (* FlexibleSUSY[24] *)
+      thresholdCorrections -> 124111421, (* FlexibleSUSY[24] *)
       higgs3loopCorrectionRenScheme -> 0,(* FlexibleSUSY[25] *)
       higgs3loopCorrectionAtAsAs -> 1,   (* FlexibleSUSY[26] *)
       higgs3loopCorrectionAbAsAs -> 1,   (* FlexibleSUSY[27] *)
       higgs3loopCorrectionAtAtAs -> 1,   (* FlexibleSUSY[28] *)
       higgs3loopCorrectionAtAtAt -> 1,   (* FlexibleSUSY[29] *)
       higgs4loopCorrectionAtAsAsAs -> 1, (* FlexibleSUSY[30] *)
+      loopLibrary -> 0,                  (* FlexibleSUSY[31] *)
       parameterOutputScale -> 0          (* MODSEL[12] *)
 };
 
@@ -147,6 +148,7 @@ FS@ModelName@OpenHandle[OptionsPattern[]] :=
             OptionValue[higgs3loopCorrectionAtAtAs],
             OptionValue[higgs3loopCorrectionAtAtAt],
             OptionValue[higgs4loopCorrectionAtAsAsAs],
+            OptionValue[loopLibrary],
             OptionValue[parameterOutputScale],
 
             (* Standard Model input parameters *)
@@ -225,6 +227,7 @@ FS@ModelName@Set[handle_Integer, p:OptionsPattern[]] :=
             OptionValue[higgs3loopCorrectionAtAtAs],
             OptionValue[higgs3loopCorrectionAtAtAt],
             OptionValue[higgs4loopCorrectionAtAsAsAs],
+            OptionValue[loopLibrary],
             OptionValue[parameterOutputScale],
 
             (* Standard Model input parameters *)

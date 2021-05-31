@@ -27,7 +27,12 @@ BeginPackage["FFVFormFactors`",
 ];
 
 FFVFormFactorsCreateInterfaceFunction::usage = "";
-FFVGraphs::usage = "";
+FFVGraphs::usage = "Returns adjacency matrix, which is wrapped in a List
+for a triangle diagram which can be seen by typing a command:
+AdjacencyGraph[FFVFormFactors`FFVGraphs[][[1]], VertexLabels -> \"Name\"]
+
+why such a weird numbering?
+because some procedure uses this order for fermion number flow.";
 FFVContributingDiagramsForGraph::usage = "";
 
 Begin["Private`"];
@@ -112,7 +117,7 @@ FFVFormFactorsCreateInterfaceFunction[Fj_ -> {Fi_, V_}, topologies_, diagrams_] 
                ] <>
                "const " <> FlexibleSUSY`FSModelName <> "_mass_eigenstates& model, bool discard_SM_contributions)"
             ];
-                 
+
       definition =
          prototype <> " {\n\n" <>
             IndentText[
@@ -151,14 +156,9 @@ FFVFormFactorsCreateInterfaceFunction[Fj_ -> {Fi_, V_}, topologies_, diagrams_] 
       {prototype <> ";", definition}
    ];
 
-(* convenient abbreviation *)
-ColorFactorForDiagram[topology_, diagram_] :=
-   N @ FSReIm @ ColourFactorForIndexedDiagramFromGraph[
-      CXXDiagrams`IndexDiagramFromGraph[diagram, topology], topology
-   ];
-
 CreateCall[Fj_, Fi_, V_, topology_, diagram_] :=
-   "val += std::complex<double> " <> ToString @ ColorFactorForDiagram[topology, diagram] <> " * FFV_" <>
+   "val += std::complex<double> " <>
+      ToString @ N @ FSReIm @ CXXDiagrams`ExtractColourFactor @ CXXDiagrams`ColorFactorForDiagram[topology, diagram] <> " * FFV_" <>
       StringJoin @@ (ToString /@ SARAH`getType /@ {EmitterL[diagram], EmitterR[diagram], Spectator[diagram]}) <> "<" <>
          StringJoin @ Riffle[CXXDiagrams`CXXNameOfField /@ {Fj, Fi, V, EmitterL[diagram], EmitterR[diagram], Spectator[diagram]}, ","]  <>
                      ">::value(indices1, indices2, context, discard_SM_contributions);\n";

@@ -51,6 +51,9 @@ CreateExtraParameterArrayGetter::usage="";
 CreateExtraParameterArraySetter::usage="";
 CreateInputParameterArrayGetter::usage="";
 CreateInputParameterArraySetter::usage="";
+CreateModelParameterGetter::usage="";
+CreateModelParameterSetter::usage="";
+CreateDelegateModelParameterGetter::usage="";
 
 CreateEnumName::usage="Creates enum symbol for given parameter";
 DecomposeParameter::usage="decomposes parameter into its real components";
@@ -169,7 +172,22 @@ expression.";
 
 FillInputParametersFromTuples::usage="";
 
-DecreaseIndexLiterals::usage="";
+DecreaseIndexLiterals::usage="@note
+Definetly safe calls:
+	f[ { Head1[Int1] , Head2[Int2], ... } ]
+	f[ { Head1[Int1] , Head2[Int2], ... }, { HeadI1, HeadI2, ...} ]
+Possible calls:
+	1. f[ exprD ]
+	2. f[ exprD, listH ]
+where
+	#1 exprD is expression which probably contains subexpressions (at any level) of the form HeadOfExpression[SomeInteger]
+	#2 listH is List which has subexpressions (only at lowest level) of the form	HeadOfExpression
+Output:
+	1. Gets names ({HeadOfExpression1, HeadOfExpression2, ...}) of all InputParameters, ExtraParameters, allModelParameters, allOutputParameters and changes
+	   in exprD any HeadOfExpression1[SomeInteger] to HeadOfExpression1[SomeInteger-1]
+	2. Gets names ({HeadOfExpression1, HeadOfExpression2, ...}) in listH and changes
+	   in exprD any HeadOfExpression1[SomeInteger] to HeadOfExpression1[SomeInteger-1]
+";
 IncreaseIndexLiterals::usage="";
 
 DecreaseSumIndices::usage="";
@@ -685,7 +703,7 @@ IsPhase[parameter_] := MemberQ[Phases`GetArg /@ allPhases, Phases`GetArg[paramet
 IsModelParameter[parameter_] := MemberQ[allModelParameters, parameter];
 IsModelParameter[Re[parameter_]] := IsModelParameter[parameter];
 IsModelParameter[Im[parameter_]] := IsModelParameter[parameter];
-IsModelParameter[FlexibleSUSY`Temporary[parameter_]] := IsModelParameter[parameter];
+IsModelParameter[FlexibleSUSY`FSTemporary[parameter_]] := IsModelParameter[parameter];
 
 IsModelParameter[parameter_[indices__] /; And @@ (IsIndex /@ {indices})] :=
     IsModelParameter[parameter];
@@ -1609,6 +1627,12 @@ GetParticleFromDescription[multipletName_String, splitNames_List] :=
            DeleteCases[GetParticleFromDescription /@ splitNames, Null]
           ];
 
+GetPDGCodesForParticle[SARAH`bar[particle_]] :=
+    -GetPDGCodesForParticle[particle];
+
+GetPDGCodesForParticle[Susyno`LieGroups`conj[particle_]] :=
+    -GetPDGCodesForParticle[particle];
+
 GetPDGCodesForParticle[particle_] :=
     Module[{pdgList},
             pdgList = SARAH`getPDGList[particle];
@@ -1867,6 +1891,21 @@ CreateInputParameterArraySetter[inputParameters_List] :=
                paramCount += nAssignments;
               ];
            Return[set];
+          ];
+
+CreateModelParameterGetter[par_] :=
+    Module[{name = CConversion`ToValidCSymbolString[par]},
+           CConversion`CreateInlineGetters[name, name, GetType[par]]
+          ];
+
+CreateDelegateModelParameterGetter[par_, macro_String:"SUPER"] :=
+    Module[{name = CConversion`ToValidCSymbolString[par]},
+           CConversion`CreateInlineGetters[name, name, GetType[par], "", macro]
+          ];
+
+CreateModelParameterSetter[par_] :=
+    Module[{name = CConversion`ToValidCSymbolString[par], type = GetType[par]},
+           CConversion`CreateInlineSetters[name, type]
           ];
 
 FindSLHABlock[blockList_List, par_] :=

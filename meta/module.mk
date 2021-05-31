@@ -71,9 +71,12 @@ META_SRC     := \
 		$(DIR)/NPointFunctions.m \
 		$(DIR)/NPointFunctions/internal.m \
 		$(DIR)/NPointFunctions/createFAModelFile.m \
+		$(DIR)/WilsonCoeffs.m \
 		$(DIR)/EDM.m \
 		$(DIR)/FFVFormFactors.m \
+		$(DIR)/FToFConversionInNucleus.m \
 		$(DIR)/BrLToLGamma.m \
+		$(DIR)/BtoSGamma.m \
 		$(DIR)/EffectiveCouplings.m \
 		$(DIR)/EWSB.m \
 		$(DIR)/FlexibleEFTHiggsMatching.m \
@@ -81,9 +84,11 @@ META_SRC     := \
 		$(DIR)/FlexibleTower.m \
 		$(DIR)/Format.m \
 		$(DIR)/FSMathLink.m \
+		$(DIR)/FunctionModifiers.m \
 		$(DIR)/Himalaya.m \
 		$(DIR)/LatticeUtils.m \
 		$(DIR)/LoopFunctions.m \
+		$(DIR)/LoopFunctionsZeroMomentum.m \
 		$(DIR)/LoopMasses.m \
 		$(DIR)/Observables.m \
 		$(DIR)/Parameters.m \
@@ -95,6 +100,7 @@ META_SRC     := \
 		$(DIR)/SemiAnalytic.m \
 		$(DIR)/TestSuite.m \
 		$(DIR)/TextFormatting.m \
+		$(DIR)/TerminalFormatting.m \
 		$(DIR)/ThreeLoopMSSM.m \
 		$(DIR)/ThreeLoopQCD.m \
 		$(DIR)/ThreeLoopSM.m \

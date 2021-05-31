@@ -1,12 +1,148 @@
-FlexibleSUSY 2.4.0 [not released yet]
+FlexibleSUSY 2.5.0 [June, 20 2020]
+==================================
+
+New features
+------------
+
+* Added support for the `COLLIER <https://collier.hepforge.org/>`_
+  [`arXiv:1604.06792 <https://arxiv.org/abs/1604.06792>`_]
+  Passarino-Veltman loop function library.  The COLLIER support can be
+  activated by the following ``configure`` command::
+
+      ./configure --with-loop-libraries=collier [...]
+
+  See ``./configure --help`` and `README.rst <README.rst>`_ for
+  further information.
+
+  Note: COLLIER can be automatically installed via::
+
+      conan install . --build=missing
+
+  The loop function library to use at run-time can be selected by
+  setting the flag ``FlexibleSUSY[31]`` accordingly in the SLHA input
+  record (0 = SOFTSUSY, 1 = COLLIER, 2 = LoopTools, 3 = FFLite).  In
+  the Mathematica interface, chose ``loopLibrary -> [...]``
+  accordingly.
+
+  Thanks to Uladzimir Khasianevich.
+
+* Added calculation of :math:`$b \to s \gamma$`.  Currently only
+  diagrams with scalars and fermions in the loop are supported.  See
+  `doc/observables/b_physics.rst <doc/observables/b_physics.rst>`_ for
+  further details.
+
+  Thanks to Kien Dang Tran.
+
+* New calculation of the W boson pole mass with decoupling behaviour
+  for large BSM masses.
+
+  Thanks to Markus Bach.
+
+Changes
+-------
+
+* [commit c5b7e4a8b]: Rename FlexibleSUSY symbol ``Temporary`` to
+  ``FSTemporary`` in order to avoid a conflict with an internal
+  mathematica symbol.
+
+* The C++ interface for the one-loop integrals has been changed to
+  allow switching between the used loop library at run-time. See
+  `doc/add_loop_library.rst <doc/add_loop_library.rst>`_ and
+  `src/loop_libraries/loop_library_interface.hpp
+  <src/loop_libraries/loop_library_interface.hpp>`_ for further
+  technical details.
+
+  Thanks to Uladzimir Khasianevich.
+
+* Changed code organization of ``NPointFunctions`` module: improved
+  speed of ``C++`` calculations, improved maintainability of the
+  metacode.
+
+* Improved performance of ``flexiblesusy-config`` script.
+
+* Improved performance of 1-loop threshold functions from
+  [`arXiv:1407.4081 <https://arxiv.org/abs/1407.4081>`_], used in
+  HSSUSY.
+
+* ``make all-test`` now returns early and with a non-zero exit code when a
+  test fails.  Use ``make -k all-test`` to force running of all tests.
+
+* When installing the dependencies with Conan_, the `Eigen 3`_ library
+  from the Conan repository is preferred over the one installed in the
+  system directories.
+
+* Improved performance and compile-time of the 2-loop MSSM threshold
+  corrections.
+
+* Improved compile time.
+
+* Updated GM2Calc to version 1.6.0.
+
+Fixed bugs
+----------
+
+* [commit 6d4310f6a]: Fix linking error with LoopTools on some
+  platforms by linking with libquadmath when necessary.
+
+* Fixed numerical instability of SOFTSUSY's B0 function.
+
+* Fixed run-time error on 32-bit ARM platforms
+
+FlexibleSUSY 2.4.2 [April, 10 2020]
+===================================
+
+Fixed bugs
+----------
+
+* [commit de7091b0d]: Fixed setting of threshold correction flags with
+  clang++ 7.0.
+
+* [commit 23f66e54c]: Fixed compilation error of LibraryLink on
+  platforms where `mint = long long`.
+
+FlexibleSUSY 2.4.1 [October, 16 2019]
 =====================================
+
+New features
+------------
+
+* The 4-loop SM-QCD threshold corrections O(αs^4) to the strong
+  coupling `[hep-ph/0512060] <https://arxiv.org/abs/hep-ph/0512060>`_
+  can be added by setting ::
+
+      UseSMAlphaS4Loop = True
+
+  in the model file.
+
+* New module ``meta/SM/as_4loop_qcd.m`` with 4-loop SM-QCD threshold
+  corrections O(αs^4) to the strong coupling `[hep-ph/0512060]
+  <https://arxiv.org/abs/hep-ph/0512060>`_.
+
+* New module ``meta/LoopFunctionsZeroMomentum.m`` with
+  Passarino-Veltman 1-loop functions for vanishing external momenta.
+
+Fixed bugs
+----------
+
+* [commit c06e57497]: The sign of 2- and 3-loop pure QCD threshold
+  corrections for αs in the Standard Model has been corrected.  The
+  effect is of the order 50 MeV w.r.t. the Higgs pole mass.
+
+* [commit bedc5b83f]: ``./createmodel`` returned an error when the
+  ``models`` directory was empty.
+
+
+FlexibleSUSY 2.4.0 [August, 04 2019]
+====================================
 
 New features
 ------------
 
 * Implementation of the 4-loop O(αs^4) contributions to the running
   MS-bar top mass of the Standard Model from [`1604.01134
-  <https://arxiv.org/abs/1604.01134>`_].  The contributions can be
+  <https://arxiv.org/abs/1604.01134>`_, `1502.01030
+  <https://arxiv.org/abs/1502.01030>`_, `1606.06754
+  <https://arxiv.org/abs/1606.06754>`_].  The contributions can be
   enabled in SM-like models by setting the flag::
 
       UseYukawa4LoopQCD = True
@@ -67,12 +203,17 @@ New features
       conan remote add conan-hep https://api.bintray.com/conan/expander/conan-hep
 
       # install required libraries
-      conan install . --build=missing -s compiler.libcxx=libstdc++11
+      conan install . --build=missing
 
 * The output of ``make`` is now non-verbose by default.  To enable
   verbose ``make`` output run::
 
       make VERBOSE=1
+
+* New non-SUSY model LeptoSplitMSSM with light 1st and 2nd generation
+  sleptons and light charginos and neutrinos.
+
+  Thanks to Fabian Esser.
 
 Changes
 -------
@@ -85,14 +226,33 @@ Changes
   - clang++ >= 3.8.1
   - icpc >= 17.0.0
 
+* The support for BLAS/LAPACK as linear algebra libraries has been
+  dropped.
+
 Fixed bugs
 ----------
+
+* [commit 3b417122]: MSSMD5O model is fixed so that the initial guess
+  of WOp does not depend on uninitialized vu.
+
+  Thanks to Andrew Miller.
 
 * [commit c47ef34a]: In function ``SLHA_io::read_entry``, if there is
   more than one entry with the same key in an SLHA block, use the last
   one.  Note, that ``SLHA_io::read_entry`` has not been used in
   FlexibleSUSY so far.
 
+* [commit eac58a54]: Correcting 2-loop O(ατ^2) threshold corrections
+  to the quartic Higgs coupling in HSSUSY.
+
+  Thanks to Emanuele Bagnaschi.
+
+* [commits 01c9471e, e9814ffc] Fix linking problem due to libpthread
+  not linked on some platforms.
+
+* [commit 41e13c3f] Fix compatibility with SARAH 4.14.2.  The issue
+  arose due to a name clash regarding the Mathematica function
+  ``CreateParameterList[]``.
 
 FlexibleSUSY 2.3.0 [January, 22 2019]
 =====================================
@@ -281,12 +441,12 @@ New features
           {g1 -> 0, g2 -> 0}, (* applied to 2L beta functions *)
           {g1 -> 0, g2 -> 0}  (* applied to 3L beta functions *)
       };
-   
+
       FSSelfEnergyRules = {
           (* applied to 1L self-energies/tadpoles *)
           { (Mass|Mass2)[VZ|gZ] -> 0 }
       };
-   
+
       (* applied to all vertices *)
       FSVertexRules = { g1 -> 0, g2 -> 0 };
 
@@ -579,7 +739,7 @@ New features
   been extracted from SOFTSUSY 4.0.1.
 
 * The 2- and 3-loop SM-QCD threshold corrections O(αs^2 + αs^3)
-  corrections to the strong coupling
+  to the strong coupling
   `[hep-ph/0004189] <https://arxiv.org/abs/hep-ph/0004189>`_ can be
   added by setting
   ::
@@ -1128,7 +1288,7 @@ FlexibleSUSY-1.6.0 [August, 27 2016]
   * ``FlexibleSUSY[13] = 0`` and ``FlexibleSUSY[4] > 0``: 1L QCD correction
   * ``FlexibleSUSY[13] = 1`` and ``FlexibleSUSY[4] > 1``: 2L QCD correction
   * ``FlexibleSUSY[13] = 2`` and ``FlexibleSUSY[4] > 2``: 3L QCD correction
-   
+
 * Feature [commits 98bc536, e8fd56a]: Speed up of the RG running in
   models with very complicated beta functions.
 
@@ -1379,8 +1539,8 @@ FlexibleSUSY-1.4.0 [March, 08 2016]
   and set the up-quark Yukawa coupling to zero::
 
       LowScaleInput = {
-         {Temporary[g1], g1 / 2},
-         {Temporary[Yu[1,1]], 0},
+         {FSTemporary[g1], g1 / 2},
+         {FSTemporary[Yu[1,1]], 0},
          ...
       };
 
@@ -1748,7 +1908,7 @@ FlexibleSUSY-1.1.0 [May, 31 2015]
   their variants.  The method for the calculation of the weak mixing
   angle can be selected via the ``FSWeakMixingAngleInput`` variable in
   the FlexibleSUSY model file.
-  
+
   Example::
 
       FSWeakMixingAngleInput = FSFermiConstant; (* or FSMassW *)
@@ -2072,6 +2232,8 @@ FlexibleSUSY-0.5 [November 18, 2013]
 * Store particle masses as Eigen::Array and mixing matrices as
   ``Eigen::Matrix``.
 
+.. _Conan: https://conan.io/
+.. _Eigen 3: http://eigen.tuxfamily.org
 .. _GM2Calc: https://arxiv.org/abs/1510.08071
 .. _MhEFT: https://gabrlee.com/code/
 .. _FeynArts: http://www.feynarts.de

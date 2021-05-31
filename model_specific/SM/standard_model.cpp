@@ -33,7 +33,7 @@
 #include "root_finder.hpp"
 #include "fixed_point_iterator.hpp"
 #include "config.h"
-#include "pv.hpp"
+#include "loop_libraries/loop_library.hpp"
 #include "raii.hpp"
 #include "thread_pool.hpp"
 #include "functors.hpp"
@@ -43,7 +43,7 @@
 #include "sm_twoloophiggs.hpp"
 #include "sm_threeloophiggs.hpp"
 #include "sm_fourloophiggs.hpp"
-#include "sm_threeloop_as.hpp"
+#include "sm_fourloop_as.hpp"
 
 #include <cmath>
 #include <functional>
@@ -320,7 +320,7 @@ int Standard_model::solve_ewsb_iteratively()
    };
 
    std::unique_ptr<EWSB_solver> solvers[] = {
-      std::unique_ptr<EWSB_solver>(new Fixed_point_iterator<number_of_ewsb_equations, fixed_point_iterator::Convergence_tester_relative>(ewsb_stepper, get_number_of_ewsb_iterations(), fixed_point_iterator::Convergence_tester_relative(ewsb_iteration_precision))),
+      std::unique_ptr<EWSB_solver>(new Fixed_point_iterator<number_of_ewsb_equations, fixed_point_iterator::Convergence_tester_relative<number_of_ewsb_equations> >(ewsb_stepper, get_number_of_ewsb_iterations(), fixed_point_iterator::Convergence_tester_relative<number_of_ewsb_equations>(ewsb_iteration_precision))),
       std::unique_ptr<EWSB_solver>(new Root_finder<number_of_ewsb_equations>(tadpole_stepper, get_number_of_ewsb_iterations(), ewsb_iteration_precision, Root_finder<number_of_ewsb_equations>::GSLHybridS)),
       std::unique_ptr<EWSB_solver>(new Root_finder<number_of_ewsb_equations>(tadpole_stepper, get_number_of_ewsb_iterations(), ewsb_iteration_precision, Root_finder<number_of_ewsb_equations>::GSLBroyden))
    };
@@ -468,6 +468,11 @@ Eigen::Matrix<double, Standard_model::number_of_ewsb_equations, 1> Standard_mode
    return ewsb_parameters;
 }
 
+void Standard_model::print() const
+{
+   this->print(std::cerr);
+}
+
 void Standard_model::print(std::ostream& ostr) const
 {
    ostr << "========================================\n"
@@ -518,42 +523,55 @@ void Standard_model::print(std::ostream& ostr) const
 
 double Standard_model::A0(double m) const
 {
-   return passarino_veltman::ReA0(m*m, Sqr(get_scale()));
+   return Loop_library::get().A0(m*m, Sqr(get_scale())).real();
 }
 
 double Standard_model::B0(double p, double m1, double m2) const
 {
-   return passarino_veltman::ReB0(p*p, m1*m1, m2*m2, Sqr(get_scale()));
+   return Loop_library::get().B0(p*p, m1*m1, m2*m2, Sqr(get_scale())).real();
 }
 
 double Standard_model::B1(double p, double m1, double m2) const
 {
-   return passarino_veltman::ReB1(p*p, m1*m1, m2*m2, Sqr(get_scale()));
+   return Loop_library::get().B1(p*p, m1*m1, m2*m2, Sqr(get_scale())).real();
 }
 
 double Standard_model::B00(double p, double m1, double m2) const
 {
-   return passarino_veltman::ReB00(p*p, m1*m1, m2*m2, Sqr(get_scale()));
+   return Loop_library::get().B00(p*p, m1*m1, m2*m2, Sqr(get_scale())).real();
 }
 
 double Standard_model::B22(double p, double m1, double m2) const
 {
-   return passarino_veltman::ReB22(p*p, m1*m1, m2*m2, Sqr(get_scale()));
+   const double scl2 = Sqr(get_scale());
+   return (
+      Loop_library::get().B00(p*p, m1*m1, m2*m2, scl2) - Loop_library::get().A0(m1*m1, scl2)/4.0 -
+      Loop_library::get().A0(m2*m2, scl2)/4.0
+   ).real();
 }
 
 double Standard_model::H0(double p, double m1, double m2) const
 {
-   return passarino_veltman::ReH0(p*p, m1*m1, m2*m2, Sqr(get_scale()));
+   const double scl2 = Sqr(get_scale());
+   return 4.0*Loop_library::get().B00(p*p, m1*m1, m2*m2, scl2).real() + Standard_model::G0(p, m1, m2);
 }
 
 double Standard_model::F0(double p, double m1, double m2) const
 {
-   return passarino_veltman::ReF0(p*p, m1*m1, m2*m2, Sqr(get_scale()));
+   const double scl2 = Sqr(get_scale());
+   return (
+      Loop_library::get().A0(m1*m1, scl2) - 2.0*Loop_library::get().A0(m2*m2, scl2)
+      - (2.0*p*p + 2.0*m1*m1 - m2*m2) * Loop_library::get().B0(p*p, m1*m1, m2*m2, scl2)
+   ).real();
 }
 
 double Standard_model::G0(double p, double m1, double m2) const
 {
-   return passarino_veltman::ReG0(p*p, m1*m1, m2*m2, Sqr(get_scale()));
+   const double scl2 = Sqr(get_scale());
+   return (
+      (p*p - m1*m1 - m2*m2) * Loop_library::get().B0(p*p, m1*m1, m2*m2, scl2)
+      - Loop_library::get().A0(m1*m1, scl2) - Loop_library::get().A0(m2*m2, scl2)
+   ).real();
 }
 
 /**
@@ -874,33 +892,50 @@ double Standard_model::calculate_delta_alpha_s(double alphaS) const
 
    double delta_alpha_s_2loop = 0.;
    double delta_alpha_s_3loop = 0.;
+   double delta_alpha_s_4loop = 0.;
 
    if (get_thresholds() > 1 && threshold_corrections.alpha_s > 1) {
-      sm_threeloop_as::Parameters pars;
+      sm_fourloop_as::Parameters pars;
       pars.as   = alphaS; // alpha_s(SM(5)) MS-bar
       pars.mt   = MFu(2);
       pars.Q    = get_scale();
 
-      const auto das_1L = sm_threeloop_as::delta_alpha_s_1loop_as(pars);
-      const auto das_2L = sm_threeloop_as::delta_alpha_s_2loop_as_as(pars);
+      const auto das_1L = sm_fourloop_as::delta_alpha_s_1loop_as(pars);
+      const auto das_2L = sm_fourloop_as::delta_alpha_s_2loop_as_as(pars);
 
-      delta_alpha_s_2loop = - das_2L + Sqr(das_1L);
+      delta_alpha_s_2loop = das_2L - Sqr(das_1L);
    }
 
    if (get_thresholds() > 2 && get_threshold_corrections().alpha_s > 2) {
-      sm_threeloop_as::Parameters pars;
+      sm_fourloop_as::Parameters pars;
       pars.as   = alphaS; // alpha_s(SM(5)) MS-bar
       pars.mt   = MFu(2);
       pars.Q    = get_scale();
 
-      const auto das_1L = sm_threeloop_as::delta_alpha_s_1loop_as(pars);
-      const auto das_2L = sm_threeloop_as::delta_alpha_s_2loop_as_as(pars);
-      const auto das_3L = sm_threeloop_as::delta_alpha_s_3loop_as_as_as(pars);
+      const auto das_1L = sm_fourloop_as::delta_alpha_s_1loop_as(pars);
+      const auto das_2L = sm_fourloop_as::delta_alpha_s_2loop_as_as(pars);
+      const auto das_3L = sm_fourloop_as::delta_alpha_s_3loop_as_as_as(pars);
 
-      delta_alpha_s_3loop = - das_3L - Power3(das_1L) + 2. * das_1L * das_2L;
+      delta_alpha_s_3loop = das_3L + Power3(das_1L) - 2. * das_1L * das_2L;
    }
 
-   return delta_alpha_s_1loop + delta_alpha_s_2loop + delta_alpha_s_3loop;
+   if (get_thresholds() > 3 && get_threshold_corrections().alpha_s > 3) {
+      sm_fourloop_as::Parameters pars;
+      pars.as   = alphaS; // alpha_s(SM(5)) MS-bar
+      pars.mt   = MFu(2);
+      pars.Q    = get_scale();
+
+      const auto das_1L = sm_fourloop_as::delta_alpha_s_1loop_as(pars);
+      const auto das_2L = sm_fourloop_as::delta_alpha_s_2loop_as_as(pars);
+      const auto das_3L = sm_fourloop_as::delta_alpha_s_3loop_as_as_as(pars);
+      const auto das_4L = sm_fourloop_as::delta_alpha_s_4loop_as_as_as_as(pars);
+
+      delta_alpha_s_4loop = das_4L - 2. * das_1L * das_3L - Power2(das_2L) + 3.
+         * Power2(das_1L) * das_2L - Power4(das_1L);
+   }
+
+   return delta_alpha_s_1loop + delta_alpha_s_2loop + delta_alpha_s_3loop
+      + delta_alpha_s_4loop;
 
 }
 
