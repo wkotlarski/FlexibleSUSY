@@ -1,0 +1,52 @@
+# Temporary: checks that createmodel sets the time stamp of FlexibleSUSY.m
+# one minute into the past on macOS and Linux. Not meant to be merged.
+name: createmodel touch test
+
+on:
+  push:
+    branches:
+      - fix-createmodel-touch-portable
+
+jobs:
+  touch:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, macos-13, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: System
+        run: |
+          uname -a
+          sw_vers 2>/dev/null || true
+          echo "TZ of the runner: $(date +%Z)"
+
+      - name: touch -t with a POSIX time zone offset
+        shell: sh
+        run: |
+          mtime() { perl -e 'print((stat shift)[9])' "$1"; }
+          touch f
+          now=$(date +%s)
+          TZ=UTC0 touch -t "$(TZ=UTC0:01 date +%Y%m%d%H%M.%S)" f
+          age=$((now - $(mtime f)))
+          echo "file is $age s in the past"
+          [ "$age" -ge 59 ] && [ "$age" -le 61 ]
+
+      - name: GNU touch -d (expected to fail on macOS)
+        shell: sh
+        run: |
+          touch g
+          if touch -d "1 min ago" g; then echo "accepted"; else echo "rejected"; fi
+
+      - name: createmodel
+        shell: sh
+        run: |
+          mtime() { perl -e 'print((stat shift)[9])' "$1"; }
+          now=$(date +%s)
+          ./createmodel --name=SM
+          age=$((now - $(mtime models/SM/FlexibleSUSY.m)))
+          echo "models/SM/FlexibleSUSY.m is $age s in the past"
+          ls -l models/SM
+          [ "$age" -ge 55 ] && [ "$age" -le 65 ]
